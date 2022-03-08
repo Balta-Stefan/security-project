@@ -53,4 +53,8 @@ public class FileEntity
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", referencedColumnName = "user_id", nullable = false)
     private UserEntity createdBy;
+
+    @Basic
+    @Column(name = "path", nullable = false, length = 65535)
+    private String path;
 }

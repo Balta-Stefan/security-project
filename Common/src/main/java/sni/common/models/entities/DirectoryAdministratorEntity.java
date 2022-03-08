@@ -13,6 +13,7 @@ public class DirectoryAdministratorEntity
     @EmbeddedId
     private DirectoryAdministratorEntityPK administrationID;
 
+
     @Basic
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -34,11 +35,11 @@ public class DirectoryAdministratorEntity
     private Boolean delete;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dir_id", referencedColumnName = "file_id", nullable = false)
+    @JoinColumn(name = "dir_id", referencedColumnName = "file_id", nullable = false, insertable = false, updatable = false)
     private FileEntity directory;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
     private UserEntity administrator;
 
     @ManyToOne(fetch = FetchType.LAZY)
