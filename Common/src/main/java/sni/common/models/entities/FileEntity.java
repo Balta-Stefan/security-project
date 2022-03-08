@@ -37,10 +37,10 @@ public class FileEntity
     @Column(name = "deleted", nullable = true)
     private Boolean deleted;
 
-    @OneToMany(mappedBy = "directory")
+    @OneToMany(mappedBy = "directory", fetch = FetchType.LAZY)
     private List<DirectoryAdministratorEntity> administrators;
 
-    @OneToMany(mappedBy = "affectedFile")
+    @OneToMany(mappedBy = "affectedFile", fetch = FetchType.LAZY)
     private List<FileLogEntity> fileLogs;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`Users` (
   `oidc_iss` varchar(512) NULL,
   `oidc_sub` varchar(255) NULL,
   PRIMARY KEY (`user_id`),
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
+  UNIQUE INDEX `users_oidc_unique_iss_sub` (`oidc_iss`, `oidc_sub`) VISIBLE)
 ENGINE = InnoDB;
 
 
