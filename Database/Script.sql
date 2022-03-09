@@ -23,9 +23,13 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`Users` (
   `password` VARCHAR(255) NULL,
   `role` VARCHAR(45) NOT NULL,
   `created_at` DATETIME NOT NULL,
-  `active` TINYINT NULL,
-  `oidc_iss` varchar(512) NULL,
-  `oidc_sub` varchar(255) NULL,
+  `active` TINYINT NOT NULL,
+  `oidc_iss` VARCHAR(512) NULL,
+  `oidc_sub` VARCHAR(255) NULL,
+  `can_create` TINYINT NOT NULL,
+  `can_read` TINYINT NOT NULL,
+  `can_update` TINYINT NOT NULL,
+  `can_delete` TINYINT NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
   UNIQUE INDEX `users_oidc_unique_iss_sub` (`oidc_iss`, `oidc_sub`) VISIBLE)
@@ -40,55 +44,34 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`Files` (
   `name` VARCHAR(55) NOT NULL,
   `is_directory` TINYINT NULL,
   `parent_id` INT NOT NULL,
-  `created_at` DATETIME NOT NULL,
-  `created_by` INT NOT NULL,
-  `discarded` TINYINT NULL,
-  `deleted` TINYINT NULL,
+  `discarded` TINYINT NOT NULL,
+  `deleted` TINYINT NOT NULL,
   PRIMARY KEY (`file_id`),
-  INDEX `created_by_idx` (`created_by` ASC) VISIBLE,
   INDEX `parent_id_idx` (`parent_id` ASC) VISIBLE,
   CONSTRAINT `parent_id`
     FOREIGN KEY (`parent_id`)
     REFERENCES `document_management_system`.`Files` (`file_id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `created_by`
-    FOREIGN KEY (`created_by`)
-    REFERENCES `document_management_system`.`Users` (`user_id`)
-    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-
-
 -- -----------------------------------------------------
--- Table `document_management_system`.`Directory_administrators`
+-- Table `document_management_system`.`file_versions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `document_management_system`.`Directory_administrators` (
-  `dir_id` INT NOT NULL,
-  `user_id` INT NOT NULL,
-  `created_at` DATETIME NOT NULL,
-  `appointed_by` INT NOT NULL,
-  `create` TINYINT NOT NULL,
-  `read` TINYINT NOT NULL,
-  `update` TINYINT NOT NULL,
-  `delete` TINYINT NOT NULL,
-  PRIMARY KEY (`dir_id`, `user_id`),
-  INDEX `user_id_idx` (`user_id` ASC) VISIBLE,
-  INDEX `created_by_idx` (`appointed_by` ASC) VISIBLE,
-  CONSTRAINT `dir_id`
-    FOREIGN KEY (`dir_id`)
-    REFERENCES `document_management_system`.`Files` (`file_id`)
+CREATE TABLE IF NOT EXISTS `document_management_system`.`file_versions` (
+  `first_file` INT NOT NULL,
+  `new_file` INT NOT NULL,
+  `version` SMALLINT NOT NULL,
+  PRIMARY KEY (`first_file`, `version`),
+  INDEX `new_file_idx` (`new_file` ASC) VISIBLE,
+  CONSTRAINT `first_file`
+    FOREIGN KEY (`first_file`)
+    REFERENCES `document_management_system`.`files` (`file_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `Directory_administrators_user_id_fk`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `document_management_system`.`Users` (`user_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `appointed_by`
-    FOREIGN KEY (`appointed_by`)
-    REFERENCES `document_management_system`.`Users` (`user_id`)
+  CONSTRAINT `new_file`
+    FOREIGN KEY (`new_file`)
+    REFERENCES `document_management_system`.`files` (`file_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

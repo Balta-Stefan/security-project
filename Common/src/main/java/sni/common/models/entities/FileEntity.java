@@ -26,19 +26,12 @@ public class FileEntity
     private Boolean isDirectory;
 
     @Basic
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Basic
-    @Column(name = "discarded", nullable = true)
+    @Column(name = "discarded", nullable = false)
     private Boolean discarded;
 
     @Basic
-    @Column(name = "deleted", nullable = true)
+    @Column(name = "deleted", nullable = false)
     private Boolean deleted;
-
-    @OneToMany(mappedBy = "directory", fetch = FetchType.LAZY)
-    private List<DirectoryAdministratorEntity> administrators;
 
     @OneToMany(mappedBy = "affectedFile", fetch = FetchType.LAZY)
     private List<FileLogEntity> fileLogs;
@@ -50,7 +43,6 @@ public class FileEntity
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private List<FileEntity> children;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", referencedColumnName = "user_id", nullable = false)
-    private UserEntity createdBy;
+    @OneToMany(mappedBy = "firstVersion", fetch = FetchType.LAZY)
+    private List<FileVersionEntity> versions;
 }

@@ -34,7 +34,7 @@ public class UserEntity
     private LocalDateTime createdAt;
 
     @Basic
-    @Column(name = "active", nullable = true)
+    @Column(name = "active", nullable = false)
     private Boolean active;
 
     @Basic
@@ -45,16 +45,22 @@ public class UserEntity
 	@Column(name = "oidc_sub", nullable = true, length = 255)
 	private String oidcSub;
 
-    @OneToMany(mappedBy = "administrator", fetch = FetchType.LAZY)
-    private List<DirectoryAdministratorEntity> administeredDirectories;
+    @Basic
+    @Column(name = "can_create", nullable = false)
+    private Boolean canCreate;
 
-    @OneToMany(mappedBy = "appointedBy", fetch = FetchType.LAZY)
-    private List<DirectoryAdministratorEntity> appointed;
+    @Basic
+    @Column(name = "can_read", nullable = false)
+    private Boolean canRead;
+
+    @Basic
+    @Column(name = "can_update", nullable = false)
+    private Boolean canUpdate;
+
+    @Basic
+    @Column(name = "can_delete", nullable = false)
+    private Boolean canDelete;
 
     @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
     private List<FileLogEntity> createdLogs;
-
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
-    private List<FileEntity> createdFiles;
-
 }
