@@ -44,7 +44,6 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`Files` (
   `created_by` INT NOT NULL,
   `discarded` TINYINT NULL,
   `deleted` TINYINT NULL,
-  `path` TEXT NOT NULL,
   PRIMARY KEY (`file_id`),
   INDEX `created_by_idx` (`created_by` ASC) VISIBLE,
   INDEX `parent_id_idx` (`parent_id` ASC) VISIBLE,
