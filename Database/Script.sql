@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`File_logs` (
   `file_id` INT NOT NULL,
   `user_id` INT NOT NULL,
   `timestamp` DATETIME NOT NULL,
-  `operation` CHAR(1) NOT NULL,
+  `operation` CHAR(2) NOT NULL,
   PRIMARY KEY (`log_id`),
   INDEX `file_id_idx` (`file_id` ASC) VISIBLE,
   INDEX `user_id_idx` (`user_id` ASC) VISIBLE,

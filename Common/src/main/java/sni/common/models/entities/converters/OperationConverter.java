@@ -7,10 +7,10 @@ import javax.persistence.Converter;
 import java.util.stream.Stream;
 
 @Converter(autoApply = true)
-public class OperationConverter implements AttributeConverter<Operation, Character>
+public class OperationConverter implements AttributeConverter<Operation, String>
 {
     @Override
-    public Character convertToDatabaseColumn(Operation operation)
+    public String convertToDatabaseColumn(Operation operation)
     {
         if(operation == null)
         {
@@ -20,7 +20,7 @@ public class OperationConverter implements AttributeConverter<Operation, Charact
     }
 
     @Override
-    public Operation convertToEntityAttribute(Character character)
+    public Operation convertToEntityAttribute(String character)
     {
         if(character == null)
         {

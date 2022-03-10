@@ -4,12 +4,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import sni.common.exceptions.BadRequestException;
 import sni.common.exceptions.ForbiddenException;
 import sni.common.exceptions.NotFoundException;
 import sni.common.models.dtos.DirectoryDTO;
 import sni.common.models.dtos.FileDTO;
 import sni.common.models.entities.*;
 import sni.common.models.enums.Operation;
+import sni.common.models.enums.Role;
 import sni.common.repositories.FileVersionsRepository;
 import sni.common.repositories.FilesRepository;
 import sni.common.repositories.LogsRepository;
@@ -87,12 +89,12 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
-    @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('DIR_ADMIN')")
     public FileDTO moveFile(int fileID, int newParentID, int askerID)
     {
+        UserEntity user = usersRepository.findById(askerID).orElseThrow(NotFoundException::new);
         FileEntity fileToMove = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
         FileEntity newParent = filesRepository.findById(newParentID).orElseThrow(NotFoundException::new);
-        UserEntity user = usersRepository.findById(askerID).orElseThrow(NotFoundException::new);
 
         // check whether the user is authorised to perform this operation
         this.checkFileBelongsToRoot(user, fileToMove);
@@ -111,6 +113,7 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
+    @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")
     public FileDTO renameFile(int fileID, int askerID, String newName)
     {
         FileEntity fileToRename = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
@@ -120,9 +123,10 @@ public class FilesServiceImpl implements FilesService
         this.checkFileBelongsToRoot(user, fileToRename);
 
         String descPart = (fileToRename.getIsDirectory()) ? "directory" : "file";
+        Operation op = (fileToRename.getIsDirectory()) ? Operation.RENAME_DIR : Operation.RENAME_FILE;
         String description = "Renaming " + descPart + " to " + newName;
 
-        FileLogEntity fileLogEntity = this.logUtilMethod(Operation.UPDATE, fileToRename, user, description);
+        FileLogEntity fileLogEntity = this.logUtilMethod(op, fileToRename, user, description);
 
         fileToRename.setName(newName);
         fileToRename = filesRepository.saveAndFlush(fileToRename);
@@ -152,7 +156,8 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
-    public FileDTO createFile(@Valid FileDTO toCreate, Optional<Resource> fileData, int creatorID)
+    @PreAuthorize("hasAnyAuthority('DIR_ADMIN')")
+    public FileDTO createDir(FileDTO toCreate, int creatorID)
     {
         FileEntity newFileParent = filesRepository.findById(toCreate.getParent()).orElseThrow(NotFoundException::new);
         UserEntity user = usersRepository.findById(creatorID).orElseThrow(NotFoundException::new);
@@ -160,7 +165,7 @@ public class FilesServiceImpl implements FilesService
         // check whether the user is authorised to perform this operation
         this.checkFileBelongsToRoot(user, newFileParent);
 
-        FileLogEntity fileLogEntity = this.logUtilMethod(Operation.CREATE, newFileParent, user, "Creating a directory");
+        FileLogEntity fileLogEntity = this.logUtilMethod(Operation.CREATE_DIR, newFileParent, user, "");
 
         FileEntity newFile = new FileEntity();
         newFile.setName(toCreate.getName());
@@ -169,9 +174,37 @@ public class FilesServiceImpl implements FilesService
         newFile.setDeleted(false);
         newFile.setNumOfVersions((short) 0);
         newFile.setParent(newFileParent);
-        newFile.setIsDirectory(toCreate.getIsDirectory());
+        newFile.setIsDirectory(true);
 
         newFile = filesRepository.saveAndFlush(newFile);
+
+        return modelMapper.map(newFile, FileDTO.class);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")
+    public FileDTO createFile(@Valid FileDTO toCreate, Resource fileData, int creatorID)
+    {
+        FileEntity newFileParent = filesRepository.findById(toCreate.getParent()).orElseThrow(NotFoundException::new);
+        UserEntity user = usersRepository.findById(creatorID).orElseThrow(NotFoundException::new);
+
+        // check whether the user is authorised to perform this operation
+        this.checkFileBelongsToRoot(user, newFileParent);
+
+        FileLogEntity fileLogEntity = this.logUtilMethod(Operation.CREATE_FILE, newFileParent, user, "");
+
+        FileEntity newFile = new FileEntity();
+        newFile.setName(toCreate.getName());
+
+        newFile.setDiscarded(false);
+        newFile.setDeleted(false);
+        newFile.setNumOfVersions((short) 0);
+        newFile.setParent(newFileParent);
+        newFile.setIsDirectory(false);
+
+        newFile = filesRepository.saveAndFlush(newFile);
+
+        filePersistenceService.persistFile(newFile.getFileId(), (short)0, fileData);
 
         return modelMapper.map(newFile, FileDTO.class);
     }
@@ -194,6 +227,7 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
+    @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")
     public FileDTO updateFile(int fileID, Resource fileData, int askerID)
     {
         // creates a new version
@@ -215,22 +249,31 @@ public class FilesServiceImpl implements FilesService
 
         fileVersionEntity = fileVersionsRepository.saveAndFlush(fileVersionEntity);
 
+        FileLogEntity fileLogEntity = this.logUtilMethod(Operation.UPDATE_FILE, fileToUpdate.getParent(), user, "");
+
         entityManager.refresh(fileToUpdate);
 
         return modelMapper.map(fileToUpdate, FileDTO.class);
     }
 
     @Override
+    @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")
     public void deleteFile(int fileID, int askerID)
     {
         FileEntity fileToDelete = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
         UserEntity user = usersRepository.findById(askerID).orElseThrow(NotFoundException::new);
 
+        if(fileToDelete.getIsDirectory() == true && user.getRole().equals(Role.USER))
+        {
+            throw new ForbiddenException();
+        }
+
         // check whether the user is authorised to perform this operation
         this.checkFileBelongsToRoot(user, fileToDelete);
 
         String description = "Deleting a " + ((fileToDelete.getIsDirectory() == true) ? "directory" : "file");
-        FileLogEntity fileLogEntity = this.logUtilMethod(Operation.DELETE, fileToDelete, user, description);
+        Operation op = (fileToDelete.getIsDirectory() == true) ? Operation.DELETE_DIRECTORY : Operation.DELETE_FILE;
+        FileLogEntity fileLogEntity = this.logUtilMethod(op, fileToDelete, user, description);
 
 
         fileToDelete.setDiscarded(true);
