@@ -12,14 +12,4 @@ public class CommonApplication
     {
         SpringApplication.run(CommonApplication.class, args);
     }
-
-    @Bean
-    public ModelMapper modelMapper(){return new ModelMapper();}
-
-    /*
-    * To do:
-    * - define ModelMapper mappings for:
-    *   - mapping FileEntity to DirectoryDTO and FileDTO
-    *
-    * */
 }

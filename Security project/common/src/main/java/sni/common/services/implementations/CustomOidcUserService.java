@@ -34,7 +34,7 @@ public class CustomOidcUserService extends OidcUserService
 
         Optional<UserEntity> userEntityOptional = this.usersRepository.findByOidcIssAndOidcSub(issuer, subject);
         // (Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo)
-        CustomOidcUser customOidcUser = new CustomOidcUser(user.getAuthorities(), user.getIdToken(), user.getUserInfo(), user.getName());
+        CustomOidcUser customOidcUser = new CustomOidcUser(user.getAuthorities(), user.getIdToken(), user.getUserInfo());
 
         UserEntity userEntity;
         if(userEntityOptional.isPresent())
