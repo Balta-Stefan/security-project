@@ -13,6 +13,6 @@ public class FileVersionEntity
     private FileVersionEntityPK fileVersionEntityPK;
 
     @ManyToOne
-    @JoinColumn(name = "first_file", referencedColumnName = "file_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "file_id", referencedColumnName = "file_id", nullable = false, insertable = false, updatable = false)
     private FileEntity firstVersion;
 }

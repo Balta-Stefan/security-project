@@ -1,11 +1,11 @@
 package sni.common.models.entities;
 
 import lombok.*;
+import sni.common.models.enums.Role;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "users")
@@ -27,7 +27,7 @@ public class UserEntity
 
     @Basic
     @Column(name = "role", nullable = false, length = 45)
-    private String role;
+    private Role role;
 
     @Basic
     @Column(name = "created_at", nullable = false)
@@ -60,6 +60,10 @@ public class UserEntity
     @Basic
     @Column(name = "can_delete", nullable = false)
     private Boolean canDelete;
+
+    @ManyToOne
+    @JoinColumn(name = "root_dir_id", referencedColumnName = "file_id")
+    private FileEntity rootDir;
 
     @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
     private List<FileLogEntity> createdLogs;

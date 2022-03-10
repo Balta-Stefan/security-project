@@ -30,9 +30,16 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`Users` (
   `can_read` TINYINT NOT NULL,
   `can_update` TINYINT NOT NULL,
   `can_delete` TINYINT NOT NULL,
+  `root_dir_id` INT NULL,
+  `num_of_versions` SMALLINT 0,
   PRIMARY KEY (`user_id`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
-  UNIQUE INDEX `users_oidc_unique_iss_sub` (`oidc_iss`, `oidc_sub`) VISIBLE)
+  UNIQUE INDEX `users_oidc_unique_iss_sub` (`oidc_iss`, `oidc_sub`) VISIBLE,
+  CONSTRAINT `users_root_dir_fk`
+    FOREIGN KEY (`root_dir_id`)
+    REFERENCES `document_management_system`.`Files` (`file_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION )
 ENGINE = InnoDB;
 
 
@@ -59,18 +66,11 @@ ENGINE = InnoDB;
 -- Table `document_management_system`.`file_versions`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `document_management_system`.`file_versions` (
-  `first_file` INT NOT NULL,
-  `new_file` INT NOT NULL,
+  `file_id` INT NOT NULL,
   `version` SMALLINT NOT NULL,
-  PRIMARY KEY (`first_file`, `version`),
-  INDEX `new_file_idx` (`new_file` ASC) VISIBLE,
-  CONSTRAINT `first_file`
-    FOREIGN KEY (`first_file`)
-    REFERENCES `document_management_system`.`files` (`file_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `new_file`
-    FOREIGN KEY (`new_file`)
+  PRIMARY KEY (`file_id`, `version`),
+  CONSTRAINT `file_versions_file_id_fk`
+    FOREIGN KEY (`file_id`)
     REFERENCES `document_management_system`.`files` (`file_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
@@ -101,6 +101,19 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`File_logs` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+
+USE `document_management_system`;
+
+DELIMITER $$
+USE `document_management_system`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `document_management_system`.`file_versions_AFTER_INSERT` AFTER INSERT ON `file_versions` FOR EACH ROW
+BEGIN
+	UPDATE files SET num_of_versions=num_of_versions+1 WHERE file_id=NEW.file_id;
+END$$
+
+
+DELIMITER ;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

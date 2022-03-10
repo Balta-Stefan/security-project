@@ -14,8 +14,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class FileVersionEntityPK implements Serializable
 {
-    @Column(name = "first_file", nullable = false)
-    private Integer firstFile;
+    @Column(name = "file_id", nullable = false)
+    private Integer file;
 
     @Column(name = "version", nullable = false)
     private Short version;

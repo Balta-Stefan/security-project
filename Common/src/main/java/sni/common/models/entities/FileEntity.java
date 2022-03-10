@@ -33,6 +33,10 @@ public class FileEntity
     @Column(name = "deleted", nullable = false)
     private Boolean deleted;
 
+    @Basic
+    @Column(name = "num_of_versions")
+    private Short numOfVersions;
+
     @OneToMany(mappedBy = "affectedFile", fetch = FetchType.LAZY)
     private List<FileLogEntity> fileLogs;
 
@@ -45,4 +49,7 @@ public class FileEntity
 
     @OneToMany(mappedBy = "firstVersion", fetch = FetchType.LAZY)
     private List<FileVersionEntity> versions;
+
+    @OneToMany(mappedBy = "rootDir", fetch = FetchType.LAZY)
+    private List<UserEntity> ownsAsRoot;
 }
