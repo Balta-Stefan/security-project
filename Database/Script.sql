@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`Users` (
   `can_delete` TINYINT NOT NULL,
   `root_dir_id` INT NULL,
   `num_of_versions` SMALLINT 0,
+  `access_from_ip` VARCHAR(15) NULL,
+  `access_from_domain` VARCHAR(255) NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
   UNIQUE INDEX `users_oidc_unique_iss_sub` (`oidc_iss`, `oidc_sub`) VISIBLE,

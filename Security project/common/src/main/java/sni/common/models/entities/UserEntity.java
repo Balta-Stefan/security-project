@@ -61,6 +61,14 @@ public class UserEntity
     @Column(name = "can_delete", nullable = false)
     private Boolean canDelete;
 
+    @Basic
+    @Column(name = "access_from_ip", length = 15)
+    private String accessFromIp;
+
+    @Basic
+    @Column(name = "access_from_domain", length = 255)
+    private String accessFromDomain;
+
     @ManyToOne
     @JoinColumn(name = "root_dir_id", referencedColumnName = "file_id")
     private FileEntity rootDir;
