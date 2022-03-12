@@ -22,8 +22,8 @@ public class UserEntity
     private String email;
 
     @Basic
-    @Column(name = "password", nullable = true, length = 255)
-    private String password;
+    @Column(name = "username", nullable = false, length = 55)
+    private String username;
 
     @Basic
     @Column(name = "role", nullable = false, length = 45)

@@ -1,6 +1,7 @@
 package sni.common.services.implementations;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -20,12 +21,9 @@ import java.util.Optional;
 @Service
 public class CustomOidcUserService extends OidcUserService
 {
-    private final UsersRepository usersRepository;
+    @Autowired
+    private UsersRepository usersRepository;
 
-    public CustomOidcUserService(UsersRepository usersRepository)
-    {
-        this.usersRepository = usersRepository;
-    }
 
     private CustomOidcUser handleUserLogin(OidcUser user)
     {

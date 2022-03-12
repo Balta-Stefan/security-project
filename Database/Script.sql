@@ -20,7 +20,7 @@ USE `document_management_system` ;
 CREATE TABLE IF NOT EXISTS `document_management_system`.`Users` (
   `user_id` INT NOT NULL AUTO_INCREMENT,
   `email` VARCHAR(55) NOT NULL,
-  `password` VARCHAR(255) NULL,
+  `username` VARCHAR(55) NOT NULL,
   `role` VARCHAR(45) NOT NULL,
   `created_at` DATETIME NOT NULL,
   `active` TINYINT NOT NULL,

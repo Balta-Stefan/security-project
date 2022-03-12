@@ -9,7 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 import sni.common.exceptions.BadRequestException;
 import sni.common.models.CustomOidcUser;
 import sni.common.models.dtos.DirectoryDTO;
+import sni.common.models.dtos.FileBasicDTO;
 import sni.common.models.dtos.FileDTO;
+import sni.common.models.dtos.FileLogDTO;
+import sni.common.models.entities.FileEntity;
 import sni.common.services.FilesService;
 
 import java.util.List;
@@ -29,6 +32,18 @@ public class FilesController
     public List<DirectoryDTO> listDir(@PathVariable Integer dirID, @AuthenticationPrincipal CustomOidcUser principal)
     {
         return this.filesService.listDir(dirID, principal.getUserID());
+    }
+
+    @GetMapping("/{fileID}/logs")
+    public List<FileLogDTO> getLogs(@PathVariable Integer fileID)
+    {
+        return this.filesService.getLogs(fileID);
+    }
+
+    @GetMapping("/root")
+    public List<FileBasicDTO> getRoot(@AuthenticationPrincipal CustomOidcUser principal)
+    {
+        return this.filesService.getRoot(principal.getUserID());
     }
 
     @PostMapping("/file")

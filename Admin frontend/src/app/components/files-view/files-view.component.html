@@ -1,0 +1,33 @@
+<div class="row mb-3" *ngIf="logs.length > 0">
+    <h3>Logs:</h3>
+
+    <mat-accordion *ngFor="let log of logs">
+        <mat-expansion-panel hideToggle>
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    {{'Log id: ' + log.logId}}
+                </mat-panel-title>
+                <mat-panel-description>
+                    {{log.description}}
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <ng-template matExpansionPanelContent>
+                <p>Operation: {{log.operation}}</p>
+                <p>Timestamp: {{log.timestamp}}</p>
+                <p>Affected file: {{'File id: ' + log.affectedFile.fileId + ', file name: ' + log.affectedFile.name}}</p>
+                <p>Action performed by: {{'User id: ' + log.createdBy.userId + ', username: ' + log.createdBy.username}}</p>
+            </ng-template>
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>
+
+<div class="row mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Library</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Data</li>
+        </ol>
+    </nav>
+</div>

@@ -2,7 +2,9 @@ package sni.common.services;
 
 import org.springframework.core.io.Resource;
 import sni.common.models.dtos.DirectoryDTO;
+import sni.common.models.dtos.FileBasicDTO;
 import sni.common.models.dtos.FileDTO;
+import sni.common.models.dtos.FileLogDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,4 +21,8 @@ public interface FilesService
 
     List<DirectoryDTO> listDir(int fileID, int askerID);
     FileDTO createDir(FileDTO toCreate, int creatorID);
+
+    List<FileLogDTO> getLogs(int fileID);
+
+    List<FileBasicDTO> getRoot(int userID);
 }

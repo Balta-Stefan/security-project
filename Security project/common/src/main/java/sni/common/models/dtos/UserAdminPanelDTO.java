@@ -8,11 +8,15 @@ import javax.validation.constraints.NotNull;
 @Data
 public class UserAdminPanelDTO
 {
+    private Integer id;
+
     @NotNull
     private Role role;
 
     @NotNull
     private Boolean active, canCreate, canRead, canUpdate, canDelete;
+
+    private String username;
 
     private String accessFromIp, accessFromDomain;
 

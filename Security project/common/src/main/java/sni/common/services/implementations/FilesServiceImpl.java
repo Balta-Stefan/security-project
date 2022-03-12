@@ -9,7 +9,9 @@ import sni.common.exceptions.ForbiddenException;
 import sni.common.exceptions.InternalServerError;
 import sni.common.exceptions.NotFoundException;
 import sni.common.models.dtos.DirectoryDTO;
+import sni.common.models.dtos.FileBasicDTO;
 import sni.common.models.dtos.FileDTO;
+import sni.common.models.dtos.FileLogDTO;
 import sni.common.models.entities.*;
 import sni.common.models.enums.Operation;
 import sni.common.models.enums.Role;
@@ -223,6 +225,37 @@ public class FilesServiceImpl implements FilesService
     public FileDTO createDir(FileDTO toCreate, int creatorID)
     {
         return this.createNewFile(toCreate, creatorID);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public List<FileLogDTO> getLogs(int fileID)
+    {
+        FileEntity fileEntity = this.filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
+
+        List<FileLogEntity> logs = this.logsRepository.findAllByAffectedFile(fileEntity);
+
+        return logs
+                .stream()
+                .map(l -> modelMapper.map(l, FileLogDTO.class))
+                .toList();
+    }
+
+    @Override
+    public List<FileBasicDTO> getRoot(int userID)
+    {
+        UserEntity userEntity = this.usersRepository.findById(userID).orElseThrow(NotFoundException::new);
+        FileEntity root = userEntity.getRootDir();
+
+        if(root.getDiscarded() || root.getDeleted())
+        {
+            throw new NotFoundException();
+        }
+
+        return root.getChildren()
+                .stream()
+                .map(f -> modelMapper.map(f, FileBasicDTO.class))
+                .toList();
     }
 
     @Override
