@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import sni.common.services.implementations.CustomOidcUserService;
 
@@ -22,12 +23,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
                 .authorizeRequests()
                 .anyRequest().authenticated()
                 .and()
-                .oauth2Login(oauth2Login ->
+                .oauth2Login()
+                    .failureHandler(this.failureHandler());
+        /*oauth2Login ->
                         oauth2Login
-                                .userInfoEndpoint().oidcUserService(this.customOidcUserService()));
+                                .userInfoEndpoint().oidcUserService(this.customOidcUserService()));*/
     }
 
     @Bean
+    public SimpleUrlAuthenticationFailureHandler failureHandler()
+    {
+        return new SimpleUrlAuthenticationFailureHandler("email_not_confirmed.html");
+    }
+
+    @Bean // this is used by default...
     public CustomOidcUserService customOidcUserService()
     {
         return new CustomOidcUserService();

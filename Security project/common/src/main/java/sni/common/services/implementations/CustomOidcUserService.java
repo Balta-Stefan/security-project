@@ -13,6 +13,7 @@ import sni.common.models.enums.Role;
 import sni.common.repositories.UsersRepository;
 
 import javax.transaction.Transactional;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -27,8 +28,11 @@ public class CustomOidcUserService extends OidcUserService
 
     private CustomOidcUser handleUserLogin(OidcUser user)
     {
-        String issuer = (String) user.getIdToken().getClaims().get("iss");
+        URL issuerURL = (URL) user.getIdToken().getClaims().get("iss");
+
+        String issuer = issuerURL.getHost();
         String subject = (String) user.getIdToken().getClaims().get("sub");
+        String username = (String) user.getIdToken().getClaims().get("nickname");
 
         Optional<UserEntity> userEntityOptional = this.usersRepository.findByOidcIssAndOidcSub(issuer, subject);
         // (Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo)
@@ -45,6 +49,7 @@ public class CustomOidcUserService extends OidcUserService
             // a new user has been authenticated
             userEntity = new UserEntity();
             userEntity.setEmail(user.getEmail());
+            userEntity.setUsername(username);
             userEntity.setRole(Role.USER);
             userEntity.setCreatedAt(LocalDateTime.now());
             userEntity.setActive(true); // might need to check if email has been activated

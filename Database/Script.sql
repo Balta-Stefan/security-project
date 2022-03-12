@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`Users` (
   `can_update` TINYINT NOT NULL,
   `can_delete` TINYINT NOT NULL,
   `root_dir_id` INT NULL,
-  `num_of_versions` SMALLINT 0,
   `access_from_ip` VARCHAR(15) NULL,
   `access_from_domain` VARCHAR(255) NULL,
   PRIMARY KEY (`user_id`),
@@ -55,6 +54,7 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`Files` (
   `parent_id` INT NOT NULL,
   `discarded` TINYINT NOT NULL,
   `deleted` TINYINT NOT NULL,
+  `num_of_versions` SMALLINT DEFAULT 0,
   PRIMARY KEY (`file_id`),
   INDEX `parent_id_idx` (`parent_id` ASC) VISIBLE,
   CONSTRAINT `parent_id`
