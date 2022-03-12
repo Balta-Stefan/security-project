@@ -12,7 +12,6 @@ import sni.common.models.dtos.DirectoryDTO;
 import sni.common.models.dtos.FileBasicDTO;
 import sni.common.models.dtos.FileDTO;
 import sni.common.models.dtos.FileLogDTO;
-import sni.common.models.entities.FileEntity;
 import sni.common.services.FilesService;
 
 import java.util.List;
@@ -33,6 +32,12 @@ public class FilesController
     {
         return this.filesService.listDir(dirID, principal.getUserID());
     }
+
+    /*@GetMapping("/dir/{dirID}/breadcrumbs")
+    public List<DirectoryDTO> getBreadCrumbs(@PathVariable Integer dirID, @AuthenticationPrincipal CustomOidcUser principal)
+    {
+        return this.filesService.getBreadCrumbs(dirID, principal.getUserID());
+    }*/
 
     @GetMapping("/{fileID}/logs")
     public List<FileLogDTO> getLogs(@PathVariable Integer fileID)

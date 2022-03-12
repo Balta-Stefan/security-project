@@ -25,4 +25,5 @@ public interface FilesService
     List<FileLogDTO> getLogs(int fileID);
 
     List<FileBasicDTO> getRoot(int userID);
+    //List<DirectoryDTO> getBreadCrumbs(int directoryID, int askerID);
 }

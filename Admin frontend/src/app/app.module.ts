@@ -13,6 +13,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule} from '@angular/material/card';
 
 export const baseURL:string = "http://localhost:8080/api/v1";
 export const jsonHeaders: HttpHeaders = new HttpHeaders({
@@ -38,7 +39,8 @@ export const jsonHeaders: HttpHeaders = new HttpHeaders({
     MatExpansionModule,
     MatTreeModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatCardModule
   ],
   providers: [],
   bootstrap: [AppComponent]

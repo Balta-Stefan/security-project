@@ -1,104 +1,109 @@
 <div class="row mb-3">
     <div class="offset-md-3 col-md-5">
-        <form (ngSubmit)="getUsers()" [formGroup]="filterUsersFormData">
-            <div class="form-floating mb-3">
-                <input formControlName="username" type="text" class="form-control" id="username" placeholder="Username">
-                <label for="username">Username</label>
-            </div>
-            <div class="form-floating mb-3">
-                <select formControlName="role" class="form-select" id="filterUsers-userRole" aria-label="Floating label select example">
-                  <option selected disabled [value]="null">Select user role</option>
-                  <option *ngFor="let role of roles | keyvalue" [value]="role.key">{{role.key}}</option>
-                </select>
-                <label for="filterUsers-userRole">Role</label>
-            </div>
-            <button class="btn btn-primary">Filter users</button>
-        </form>
-    </div>
-</div>
+        <div class="row mb-3">
+            <mat-card>
+                <form (ngSubmit)="getUsers()" [formGroup]="filterUsersFormData">
+                    <div class="form-floating mb-3">
+                        <input formControlName="username" type="text" class="form-control" id="username" placeholder="Username">
+                        <label for="username">Username</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select formControlName="role" class="form-select" id="filterUsers-userRole" aria-label="Floating label select example">
+                          <option selected disabled [value]="null">Select user role</option>
+                          <option *ngFor="let role of roles | keyvalue" [value]="role.key">{{role.key}}</option>
+                        </select>
+                        <label for="filterUsers-userRole">Role</label>
+                    </div>
+                    <button class="btn btn-primary">Filter users</button>
+                </form>
+            </mat-card>
+        </div>
+   
+        <div *ngIf="filteredUsers.length > 0" class="row mb-3">
+            <mat-card>
+                <h3>Users:</h3>
+                <div class="list-group">
+                    <button type="button"
+                        class="list-group-item list-group-item-action"
+                        *ngFor="let user of filteredUsers"
+                        (click)="userSelected(user)"
+                        [ngClass]="(user.id == selectedUser?.id) ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'">
+                        {{'Username: ' + user.username + ', role: ' + user.role}}
+                    </button>
+                </div>
+            </mat-card>
+        </div>
 
-<div class="row">
-    <h3>Users:</h3>
-
-    <div class="list-group">
-        <button type="button"
-            class="list-group-item list-group-item-action"
-            *ngFor="let user of filteredUsers"
-            (click)="userSelected(user)"
-            [ngClass]="(user.id == selectedUser?.id) ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'">
-            {{'Username: ' + user.username + ', role: ' + user.role}}
-        </button>
-    </div>
-</div>
-
-<div class="row" id="user-form">
-    <div class="offset-md-3 col-md-5">
-        <form (ngSubmit)="changeUserInfo()" [formGroup]="userFormData">
-            <div class="form-floating mb-3">
-                <select formControlName="role" class="form-select" id="userRole" aria-label="Floating label select example">
-                  <option selected disabled [value]="null">Select user role</option>
-                  <option *ngFor="let role of roles | keyvalue" [value]="role.key">{{role.key}}</option>
-                </select>
-                <label for="userRole">User role</label>
-            </div>
-             
-            <div class="form-check">
-                <input formControlName="active" class="form-check-input" type="checkbox" id="active">
-                <label class="form-check-label" for="active">
-                  Active
-                </label>
-            </div>
+        <div *ngIf="selectedUser" class="row mb-3">
+            <mat-card>
+                <form (ngSubmit)="changeUserInfo()" [formGroup]="userFormData">
+                    <div class="form-floating mb-3">
+                        <select formControlName="role" class="form-select" id="userRole" aria-label="Floating label select example">
+                        <option selected disabled [value]="null">Select user role</option>
+                        <option *ngFor="let role of roles | keyvalue" [value]="role.key">{{role.key}}</option>
+                        </select>
+                        <label for="userRole">User role</label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input formControlName="active" class="form-check-input" type="checkbox" id="active">
+                        <label class="form-check-label" for="active">
+                        Active
+                        </label>
+                    </div>
+            
+                    <div class="form-check">
+                        <input formControlName="canCreate" class="form-check-input" type="checkbox" id="create">
+                        <label class="form-check-label" for="create">
+                        Create
+                        </label>
+                    </div>
+            
+                    <div class="form-check">
+                        <input formControlName="canRead" class="form-check-input" type="checkbox" id="read">
+                        <label class="form-check-label" for="read">
+                        Read
+                        </label>
+                    </div>
+            
+                
+                    <div class="form-check">
+                        <input formControlName="canUpdate" class="form-check-input" type="checkbox" id="update">
+                        <label class="form-check-label" for="update">
+                        Update
+                        </label>
+                    </div>
+            
+            
+                    <div class="form-check">
+                        <input formControlName="canDelete" class="form-check-input" type="checkbox" id="delete">
+                        <label class="form-check-label" for="delete">
+                        Delete
+                        </label>
+                    </div>
+            
+                    <div class="form-floating mb-3">
+                        <input formControlName="accessFromIp" type="text" class="form-control" id="accessFromIp" placeholder="accessFromIp">
+                        <label for="accessFromIp">Access from IP address</label>
+                    </div>
+            
+                    <div class="form-floating mb-3">
+                        <input formControlName="accessFromDomain" type="text" class="form-control" id="accessFromDomain" placeholder="accessFromIp">
+                        <label for="accessFromDomain">Access from domain</label>
+                    </div>
     
-            <div class="form-check">
-                <input formControlName="canCreate" class="form-check-input" type="checkbox" id="create">
-                <label class="form-check-label" for="create">
-                  Create
-                </label>
-            </div>
+                    <div class="form-floating mb-3">
+                        <input formControlName="rootDir" type="number" min="0" class="form-control" id="accessFromDomain" placeholder="rootDir">
+                        <label for="rootDir">Root directory ID</label>
+                    </div>
+            
+                    <button class="btn btn-primary" [disabled]="!selectedUser">Change user info</button>
     
-            <div class="form-check">
-                <input formControlName="canRead" class="form-check-input" type="checkbox" id="read">
-                <label class="form-check-label" for="read">
-                  Read
-                </label>
-            </div>
-    
-        
-            <div class="form-check">
-                <input formControlName="canUpdate" class="form-check-input" type="checkbox" id="update">
-                <label class="form-check-label" for="update">
-                  Update
-                </label>
-            </div>
-    
-    
-            <div class="form-check">
-                <input formControlName="canDelete" class="form-check-input" type="checkbox" id="delete">
-                <label class="form-check-label" for="delete">
-                  Delete
-                </label>
-            </div>
-    
-            <div class="form-floating mb-3">
-                <input formControlName="accessFromIp" type="text" class="form-control" id="accessFromIp" placeholder="accessFromIp">
-                <label for="accessFromIp">Access from IP address</label>
-            </div>
-    
-            <div class="form-floating mb-3">
-                <input formControlName="accessFromDomain" type="text" class="form-control" id="accessFromDomain" placeholder="accessFromIp">
-                <label for="accessFromDomain">Access from domain</label>
-            </div>
-
-            <div class="form-floating mb-3">
-                <input formControlName="rootDir" type="number" min="0" class="form-control" id="accessFromDomain" placeholder="rootDir">
-                <label for="rootDir">Root directory ID</label>
-            </div>
-    
-            <button class="btn btn-primary" [disabled]="!selectedUser">Change user info</button>
-
-            <div class="row error-row">
-                <h3 [ngStyle]="{'color': submitUserInfoIsError ? 'red' : 'green'}">{{submitUserInfoMessage}}</h3>
-            </div>
-        </form>
+                    <div class="row error-row">
+                        <h3 [ngStyle]="{'color': submitUserInfoIsError ? 'red' : 'green'}">{{submitUserInfoMessage}}</h3>
+                    </div>
+                </form>
+            </mat-card>
+        </div>
     </div>
 </div>

@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { DirectoryBasicDTO } from 'src/app/models/DirectoryBasicDTO';
 import { FileBasicDTO } from 'src/app/models/FileBasicDTO';
 import { FileLogDTO } from 'src/app/models/FileLogDTO';
 import { FileService } from 'src/app/services/file.service';
@@ -13,6 +14,9 @@ export class FilesViewComponent implements OnInit {
 
   files: FileBasicDTO[] = [];
   logs: FileLogDTO[] = [];
+
+  breadcrumbs: DirectoryBasicDTO[] = [];
+  workingDir!: DirectoryBasicDTO;
 
   constructor(private fileService: FileService) { }
 
@@ -36,5 +40,9 @@ export class FilesViewComponent implements OnInit {
         alert("An error has occured: " + err.statusText);
       }
     });
+  }
+
+  breadcrumbSelected(dir: DirectoryBasicDTO): void{
+    
   }
 }

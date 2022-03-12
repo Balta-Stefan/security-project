@@ -28,6 +28,7 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -257,6 +258,37 @@ public class FilesServiceImpl implements FilesService
                 .map(f -> modelMapper.map(f, FileBasicDTO.class))
                 .toList();
     }
+
+    /*@Override
+    public List<DirectoryDTO> getBreadCrumbs(int directoryID, int askerID)
+    {
+        UserEntity userEntity = this.usersRepository.findById(askerID).orElseThrow(NotFoundException::new);
+
+        FileEntity fileToRead = filesRepository.findById(directoryID).orElseThrow(NotFoundException::new);
+        // check whether the user is authorised to perform this operation
+        this.checkFileBelongsToUserRoot(userEntity, fileToRead);
+
+        if(fileToRead.getDiscarded() || fileToRead.getDeleted())
+        {
+            throw new NotFoundException();
+        }
+
+        FileEntity userRoot = userEntity.getRootDir();
+        FileEntity parent = fileToRead.getParent();
+
+        List<DirectoryDTO> breadcrumbs = new ArrayList<>();
+
+        while((parent = parent.getParent()) != null)
+        {
+            breadcrumbs.add(modelMapper.map(parent, DirectoryDTO.class));
+            if(parent.getFileId() == userRoot.getFileId())
+                break;
+        }
+
+        Collections.reverse(breadcrumbs);
+
+        return breadcrumbs;
+    }*/
 
     @Override
     @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")

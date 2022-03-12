@@ -1,0 +1,11 @@
+.breadcrumb-item{
+    cursor: pointer;
+    text-decoration: underline;
+    color: blue;
+}
+
+.breadcrumb-item.active{
+    cursor: default !important;
+    text-decoration: none !important;
+    color: gray !important;
+}

@@ -23,11 +23,21 @@
 </div>
 
 <div class="row mb-3">
-    <nav aria-label="breadcrumb">
+    <nav>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item"><a href="#">Library</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Data</li>
+            <li class="breadcrumb-item"
+            *ngFor="let breadcrumb of breadcrumbs"
+            (click)="breadcrumbSelected(breadcrumb)">
+                {{breadcrumb.name}}
+            </li>
+
+            <li *ngIf="workingDir" class="breadcrumb-item active">
+                {{workingDir.name}}
+            </li>
+
+            <li class="breadcrumb-item">Home</li>
+            <li class="breadcrumb-item">Library</li>
+            <li class="breadcrumb-item active">Data</li>
         </ol>
     </nav>
 </div>
