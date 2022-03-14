@@ -1,4 +1,3 @@
-import { FileBasicDTO } from "./FileBasicDTO";
 import { Role } from "./Role";
 
 export interface UserInfoDTO{
@@ -12,5 +11,5 @@ export interface UserInfoDTO{
     accessFromIp: string;
     accessFromDomain: string;
     username: string;
-    rootDir: FileBasicDTO; // CHANGE THIS AT BACKEND!
+    rootDirID: number;
 }

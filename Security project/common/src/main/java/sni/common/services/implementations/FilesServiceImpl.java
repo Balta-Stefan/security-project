@@ -4,14 +4,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import sni.common.exceptions.ConflictException;
 import sni.common.exceptions.ForbiddenException;
 import sni.common.exceptions.InternalServerError;
 import sni.common.exceptions.NotFoundException;
-import sni.common.models.dtos.DirectoryDTO;
-import sni.common.models.dtos.FileBasicDTO;
-import sni.common.models.dtos.FileDTO;
-import sni.common.models.dtos.FileLogDTO;
+import sni.common.models.dtos.*;
 import sni.common.models.entities.*;
 import sni.common.models.enums.Operation;
 import sni.common.models.enums.Role;
@@ -30,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -165,7 +162,7 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
-    public List<DirectoryDTO> listDir(int fileID, int askerID)
+    public DirectoryDTO listDir(int fileID, int askerID)
     {
         FileEntity fileToRead = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
         if(fileToRead.getDiscarded() || fileToRead.getDeleted())
@@ -183,11 +180,7 @@ public class FilesServiceImpl implements FilesService
             throw new NotFoundException();
         }
 
-        return fileToRead
-                .getChildren()
-                .stream()
-                .map(c -> modelMapper.map(c, DirectoryDTO.class))
-                .toList();
+        return modelMapper.map(fileToRead, DirectoryDTO.class);
     }
 
     private FileDTO createNewFile(@Valid FileDTO fileDTO, int creatorID)
@@ -243,20 +236,21 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
-    public List<FileBasicDTO> getRoot(int userID)
+    public DirectoryDTO getRoot(int userID)
     {
         UserEntity userEntity = this.usersRepository.findById(userID).orElseThrow(NotFoundException::new);
         FileEntity root = userEntity.getRootDir();
+
+        if(root == null)
+        {
+            return new DirectoryDTO(null, Collections.emptyList());
+        }
 
         if(root.getDiscarded() || root.getDeleted())
         {
             throw new NotFoundException();
         }
-
-        return root.getChildren()
-                .stream()
-                .map(f -> modelMapper.map(f, FileBasicDTO.class))
-                .toList();
+        return modelMapper.map(root, DirectoryDTO.class);
     }
 
     /*@Override
@@ -308,7 +302,7 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
-    public Resource readFile(int fileID, short requestedVersion, int askerID)
+    public FileResourceDownloadWrapper readFile(int fileID, Optional<Short> requestedVersion, int askerID)
     {
         FileEntity fileToRead = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
         if(fileToRead.getDiscarded() || fileToRead.getDeleted())
@@ -325,7 +319,23 @@ public class FilesServiceImpl implements FilesService
         // check whether the user is authorised to perform this operation
         this.checkFileBelongsToUserRoot(user, fileToRead);
 
-        return filePersistenceService.getFile(fileID, requestedVersion);
+        FileResourceDownloadWrapper fileWrapper = new FileResourceDownloadWrapper();
+        fileWrapper.setFileName(fileToRead.getName());
+
+        Resource fileData;
+        if(requestedVersion.isPresent())
+        {
+            // get specified version
+            fileData = filePersistenceService.getFile(fileID, requestedVersion.get());
+        }
+        else
+        {
+            // get latest version
+            fileData = filePersistenceService.getFile(fileID, fileToRead.getNumOfVersions());
+        }
+
+        fileWrapper.setFile(fileData);
+        return fileWrapper;
     }
 
     @Override

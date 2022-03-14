@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService
     public UserAdminPanelDTO changeUserPermissions(Integer userID, @Valid UserAdminPanelDTO usr)
     {
         UserEntity user = this.usersRepository.findById(userID).orElseThrow(NotFoundException::new);
-        FileEntity rootDir = this.filesRepository.findById(usr.getRootDirID()).orElseThrow(NotFoundException::new);
+        //FileEntity rootDir = this.filesRepository.findById(usr.getRootDirID()).orElseThrow(NotFoundException::new);
 
 
         user.setRole(usr.getRole());
@@ -47,7 +47,8 @@ public class UserServiceImpl implements UserService
         user.setCanDelete(usr.getCanDelete());
         user.setAccessFromIp(usr.getAccessFromIp());
         user.setAccessFromDomain(usr.getAccessFromDomain());
-        user.setRootDir(rootDir);
+        user = this.usersRepository.saveAndFlush(user);
+        //user.setRootDir(rootDir);
 
         return usr;
     }

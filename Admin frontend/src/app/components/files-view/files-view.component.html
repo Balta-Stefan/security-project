@@ -25,19 +25,58 @@
 <div class="row mb-3">
     <nav>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"
-            *ngFor="let breadcrumb of breadcrumbs"
-            (click)="breadcrumbSelected(breadcrumb)">
+            <li class="breadcrumb-item" *ngFor="let breadcrumb of breadcrumbs" (click)="breadcrumbSelected(breadcrumb)">
                 {{breadcrumb.name}}
             </li>
 
             <li *ngIf="workingDir" class="breadcrumb-item active">
                 {{workingDir.name}}
             </li>
-
-            <!--<li class="breadcrumb-item">Home</li>
-            <li class="breadcrumb-item">Library</li>
-            <li class="breadcrumb-item active">Data</li>-->
         </ol>
     </nav>
+</div>
+
+<div class="row mb-3">
+    <h1>Files</h1>
+    <div class="row mb-3">
+        <form (ngSubmit)="createDir()">
+            <div class="form-floating mb-3">
+                <input [(ngModel)]="newDirName" type="text" name="newDirName" class="form-control" id="newDirName" placeholder="New dir name">
+                <label for="newDirName">New directory name</label>
+            </div>
+            <button [disabled]="!newDirName" type="submit" class="btn btn-primary">Create new directory</button>
+        </form>
+    </div>
+    <div class="row mb-3">
+        <form (ngSubmit)="uploadFile()">
+            <div class="mb-3">
+                <label for="formFile" class="form-label">Add new file</label>
+                <input class="form-control" type="file" id="formFile" (change)="newFileChosen($event)">
+            </div>
+            <button class="btn btn-secondary" [disabled]="!newFile">Add new file</button>
+        </form>
+    </div>
+   
+    <mat-accordion class="headers-align" multi>
+        <mat-expansion-panel *ngFor="let file of files">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <mat-icon *ngIf="file.isDirectory == true">folder</mat-icon>
+                    <mat-icon *ngIf="file.isDirectory == false">insert_drive_file</mat-icon>
+                    {{file.name}}
+                </mat-panel-title>
+                <mat-panel-description>
+                    ID: {{file.fileId}}
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="d-flex justify-content-evenly">
+                <button *ngIf="file.isDirectory" class="btn btn-primary" (click)="openDir(file)">Open</button>
+                <button class="btn btn-secondary">Move</button>
+                <button class="btn btn-danger" (click)="deleteFile(file)">Delete</button>
+                <button class="btn btn-info" (click)="openLogsModal(file)">View logs</button>
+                <a class="btn btn-primary" [href]="'/api/v1/files/file/' + file.fileId">Download</a>    
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
 </div>

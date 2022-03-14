@@ -25,11 +25,11 @@ public class UsersController
         return this.userService.changeUserPermissions(userID, userDTO);
     }
 
-    @GetMapping()
+    @GetMapping
     public List<UserAdminPanelDTO> getUsers(@RequestParam(required = false) String username,
                                             @RequestParam(required = false) Role role,
-                                            @RequestParam(defaultValue = "0") Integer page,
-                                            @RequestParam(defaultValue = "20") Integer pageSize)
+                                            @RequestParam(defaultValue = "0", required = false) Integer page,
+                                            @RequestParam(defaultValue = "20", required = false) Integer pageSize)
     {
         return this.userService.getUsers(username, role, page, pageSize);
     }

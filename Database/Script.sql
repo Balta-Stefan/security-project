@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `document_management_system`.`Files` (
   `file_id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(55) NOT NULL,
   `is_directory` TINYINT NULL,
-  `parent_id` INT NOT NULL,
+  `parent_id` INT NULL,
   `discarded` TINYINT NOT NULL,
   `deleted` TINYINT NOT NULL,
   `num_of_versions` SMALLINT DEFAULT 0,

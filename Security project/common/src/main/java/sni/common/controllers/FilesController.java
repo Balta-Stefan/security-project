@@ -1,6 +1,7 @@
 package sni.common.controllers;
 
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -8,13 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sni.common.exceptions.BadRequestException;
 import sni.common.models.CustomOidcUser;
-import sni.common.models.dtos.DirectoryDTO;
-import sni.common.models.dtos.FileBasicDTO;
-import sni.common.models.dtos.FileDTO;
-import sni.common.models.dtos.FileLogDTO;
+import sni.common.models.dtos.*;
 import sni.common.services.FilesService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/files")
@@ -28,7 +27,7 @@ public class FilesController
     }
 
     @GetMapping("/dir/{dirID}")
-    public List<DirectoryDTO> listDir(@PathVariable Integer dirID, @AuthenticationPrincipal CustomOidcUser principal)
+    public DirectoryDTO listDir(@PathVariable Integer dirID, @AuthenticationPrincipal CustomOidcUser principal)
     {
         return this.filesService.listDir(dirID, principal.getUserID());
     }
@@ -46,7 +45,7 @@ public class FilesController
     }
 
     @GetMapping("/root")
-    public List<FileBasicDTO> getRoot(@AuthenticationPrincipal CustomOidcUser principal)
+    public DirectoryDTO getRoot(@AuthenticationPrincipal CustomOidcUser principal)
     {
         return this.filesService.getRoot(principal.getUserID());
     }
@@ -69,15 +68,47 @@ public class FilesController
         this.filesService.deleteFile(fileID, principal.getUserID());
     }
 
-
-    @GetMapping("/file/{fileID}/version/{version}")
-    public ResponseEntity<Resource> getFile(@PathVariable Integer fileID, @PathVariable Short version, @AuthenticationPrincipal CustomOidcUser principal)
+    @GetMapping("/file/{fileID}")
+    public ResponseEntity<Resource> downloadLatestVersionOfFile(@PathVariable Integer fileID, @AuthenticationPrincipal CustomOidcUser principal)
     {
-        Resource file = filesService.readFile(fileID, version, principal.getUserID());
+        // download the latest version
+        FileResourceDownloadWrapper fileWrapper = filesService.readFile(fileID, Optional.empty(), principal.getUserID());
+        ContentDisposition contentDisposition = ContentDisposition
+                .attachment()
+                .filename(fileWrapper.getFileName())
+                .build();//builder("inline").filename(fileWrapper.getFileName()).build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDisposition(contentDisposition);
 
         return ResponseEntity.ok()
+                .headers(headers)
+                .body(fileWrapper.getFile());
+
+        /*return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-                .body(file);
+                .body(file);*/
+    }
+
+    @GetMapping("/file/{fileID}/version/{version}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Integer fileID, @PathVariable Short version, @AuthenticationPrincipal CustomOidcUser principal)
+    {
+        FileResourceDownloadWrapper fileWrapper = filesService.readFile(fileID, Optional.of(version), principal.getUserID());
+
+        ContentDisposition contentDisposition = ContentDisposition
+                .attachment()
+                .filename(fileWrapper.getFileName())
+                .build();//builder("inline").filename(fileWrapper.getFileName()).build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDisposition(contentDisposition);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(fileWrapper.getFile());
+
+        /*return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+                .body(file);*/
     }
 
     @PatchMapping("/file/{fileID}/parent/{newParentID}")

@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule, HttpHeaders } from '@angular/common/http'
 import { MatExpansionModule } from '@angular/material/expansion';
+import {MatDialogModule} from '@angular/material/dialog';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -14,8 +15,9 @@ import { MatTreeModule } from '@angular/material/tree';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule} from '@angular/material/card';
+import { LogsModalComponent } from './components/logs-modal/logs-modal.component';
 
-export const baseURL:string = "http://localhost:8080/api/v1";
+export const baseURL:string = "/api/v1";//"http://localhost:8080/api/v1";
 export const jsonHeaders: HttpHeaders = new HttpHeaders({
   'Accept': 'application/json', 
   'Content-Type': 'application/json'
@@ -27,7 +29,8 @@ export const jsonHeaders: HttpHeaders = new HttpHeaders({
     AppComponent,
     MainPageComponent,
     FilesViewComponent,
-    UsersViewComponent
+    UsersViewComponent,
+    LogsModalComponent
   ],
   imports: [
     BrowserModule,
@@ -40,7 +43,8 @@ export const jsonHeaders: HttpHeaders = new HttpHeaders({
     MatTreeModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]

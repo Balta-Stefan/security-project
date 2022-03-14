@@ -12,9 +12,6 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./users-view.component.css']
 })
 export class UsersViewComponent implements OnInit {
-
-  userName!: string;
-
   userFormData: FormGroup;
   filterUsersFormData: FormGroup;
 
@@ -44,7 +41,7 @@ export class UsersViewComponent implements OnInit {
       canDelete: null,
       accessFromIp: null,
       accessFromDomain: null,
-      rootDir: null
+      rootDirID: null
     });
   }
 
@@ -53,17 +50,16 @@ export class UsersViewComponent implements OnInit {
 
   userSelected(user: UserInfoDTO): void{
     this.selectedUser = user;
+    Object.assign(this.selectedUser, user);
 
-    // modify the user so he can be used in the user permissions form
-    let userCopy = JSON.parse(JSON.stringify(user));
-    delete userCopy.rootDir;
-    userCopy.rootDir = user.rootDir.fileId;
-
-    this.userFormData.setValue(userCopy);
+    this.userFormData = this.fb.group(user);
   }
 
   getUsers(): void{
-    this.userService.filterUsers(this.userName).subscribe({
+    this.selectedUser = null!;
+    this.submitUserInfoMessage = "";
+
+    this.userService.filterUsers(this.filterUsersFormData.value['username'], this.filterUsersFormData.value['role']).subscribe({
       next: (value: UserInfoDTO[]) => {
         this.filteredUsers = value;
       },
@@ -76,8 +72,8 @@ export class UsersViewComponent implements OnInit {
 
   changeUserInfo(): void{
     let userInfo = this.userFormData.value;
-    
-    userInfo.rootDir = this.selectedUser.rootDir;
+
+    this.submitUserInfoMessage = "";
 
     this.userService.changeUser(userInfo).subscribe({
       next: (value: UserInfoDTO) => {

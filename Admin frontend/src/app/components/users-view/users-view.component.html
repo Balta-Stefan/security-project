@@ -14,7 +14,13 @@
                         </select>
                         <label for="filterUsers-userRole">Role</label>
                     </div>
-                    <button class="btn btn-primary">Filter users</button>
+
+                    <div class="offset-md-4 col-md-4">
+                        <div class="row g-3">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                            <button type="reset" class="btn btn-secondary">Reset</button>                
+                        </div>
+                    </div>
                 </form>
             </mat-card>
         </div>
@@ -93,8 +99,8 @@
                     </div>
     
                     <div class="form-floating mb-3">
-                        <input formControlName="rootDir" type="number" min="0" class="form-control" id="accessFromDomain" placeholder="rootDir">
-                        <label for="rootDir">Root directory ID</label>
+                        <input formControlName="rootDirID" type="number" min="0" class="form-control" id="rootDirId" placeholder="rootDir">
+                        <label for="rootDirId">Root directory ID</label>
                     </div>
             
                     <button class="btn btn-primary" [disabled]="!selectedUser">Change user info</button>

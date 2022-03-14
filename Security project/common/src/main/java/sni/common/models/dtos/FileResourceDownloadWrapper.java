@@ -3,14 +3,13 @@ package sni.common.models.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
+import org.springframework.core.io.Resource;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DirectoryDTO
+public class FileResourceDownloadWrapper
 {
-    private DirectoryBasicDTO directory;
-    private List<FileBasicDTO> children;
+    private Resource file;
+    private String fileName;
 }

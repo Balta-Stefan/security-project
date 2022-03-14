@@ -2,6 +2,8 @@ package sni.common.services.implementations;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -15,6 +17,8 @@ import sni.common.repositories.UsersRepository;
 import javax.transaction.Transactional;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -35,14 +39,18 @@ public class CustomOidcUserService extends OidcUserService
         String username = (String) user.getIdToken().getClaims().get("nickname");
 
         Optional<UserEntity> userEntityOptional = this.usersRepository.findByOidcIssAndOidcSub(issuer, subject);
-        // (Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo)
-        CustomOidcUser customOidcUser = new CustomOidcUser(user.getAuthorities(), user.getIdToken(), user.getUserInfo());
 
         UserEntity userEntity;
+
+        // authorities cannot be simply added to user.getAuthorities() because Collection<? extends GrantedAuthority> cannot receive new objects
+        List<GrantedAuthority> userAuthorities = new ArrayList<>(user.getAuthorities());
+
         if(userEntityOptional.isPresent())
         {
             // the user already exists
             userEntity = userEntityOptional.get();
+            GrantedAuthority userRole = new SimpleGrantedAuthority(userEntity.getRole().name());
+            userAuthorities.add(userRole);
         }
         else
         {
@@ -62,7 +70,10 @@ public class CustomOidcUserService extends OidcUserService
 
             userEntity = usersRepository.saveAndFlush(userEntity);
         }
+        // (Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo)
+        CustomOidcUser customOidcUser = new CustomOidcUser(userAuthorities, user.getIdToken(), user.getUserInfo());
         customOidcUser.setUserID(userEntity.getUserId());
+        customOidcUser.setRole(userEntity.getRole());
 
         return customOidcUser;
     }

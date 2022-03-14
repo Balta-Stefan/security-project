@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>File logs</h2>
+<mat-dialog-content class="mat-typography">
+    <mat-accordion class="headers-align" multi>
+
+        <mat-expansion-panel *ngFor="let log of logs">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Log id: {{log.logId}}
+              </mat-panel-title>
+              <mat-panel-description>
+                {{log.description}}
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <p>Timestamp: {{log.timestamp}}</p>
+            <p>Operation: {{log.operation}}</p>
+            <p>Affected file: {{'ID: ' + log.affectedFile.fileId + ', name: ' + log.affectedFile.name}}</p>
+            <p>Performed by user: {{'ID: ' + log.createdBy.userId + ', username: ' + log.createdBy.username}}</p>
+        </mat-expansion-panel>
+    </mat-accordion>
+</mat-dialog-content>
