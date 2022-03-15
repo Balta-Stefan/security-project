@@ -9,11 +9,16 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import sni.common.exceptions.ForbiddenException;
 import sni.common.models.CustomOidcUser;
 import sni.common.models.entities.UserEntity;
+import sni.common.models.enums.Permission;
 import sni.common.models.enums.Role;
 import sni.common.repositories.UsersRepository;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -49,8 +54,26 @@ public class CustomOidcUserService extends OidcUserService
         {
             // the user already exists
             userEntity = userEntityOptional.get();
+
             GrantedAuthority userRole = new SimpleGrantedAuthority(userEntity.getRole().name());
             userAuthorities.add(userRole);
+
+            if(userEntityOptional.get().getCanCreate() == true)
+            {
+                userAuthorities.add(new SimpleGrantedAuthority(Permission.CREATE.name()));
+            }
+            if(userEntityOptional.get().getCanRead() == true)
+            {
+                userAuthorities.add(new SimpleGrantedAuthority(Permission.READ.name()));
+            }
+            if(userEntityOptional.get().getCanUpdate() == true)
+            {
+                userAuthorities.add(new SimpleGrantedAuthority(Permission.UPDATE.name()));
+            }
+            if(userEntityOptional.get().getCanDelete() == true)
+            {
+                userAuthorities.add(new SimpleGrantedAuthority(Permission.DELETE.name()));
+            }
         }
         else
         {
@@ -74,6 +97,8 @@ public class CustomOidcUserService extends OidcUserService
         CustomOidcUser customOidcUser = new CustomOidcUser(userAuthorities, user.getIdToken(), user.getUserInfo());
         customOidcUser.setUserID(userEntity.getUserId());
         customOidcUser.setRole(userEntity.getRole());
+        customOidcUser.setAccessFromDomain(userEntity.getAccessFromDomain());
+        customOidcUser.setAccessFromIp(userEntity.getAccessFromIp());
 
         return customOidcUser;
     }

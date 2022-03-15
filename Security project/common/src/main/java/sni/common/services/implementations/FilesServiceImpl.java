@@ -138,7 +138,7 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
-    @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")
+    @PreAuthorize("hasAuthority('DIR_ADMIN') or (hasAuthority('USER') and hasAuthority('UPDATE'))")
     public void renameFile(int fileID, int askerID, String newName)
     {
         FileEntity fileToRename = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
@@ -253,7 +253,7 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public List<FileLogDTO> getLogs(int fileID)
     {
         FileEntity fileEntity = this.filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
@@ -312,7 +312,7 @@ public class FilesServiceImpl implements FilesService
     }*/
 
     @Override
-    @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")
+    @PreAuthorize("hasAuthority('DIR_ADMIN') or (hasAuthority('USER') and hasAuthority('CREATE'))")
     public FileBasicDTO createFile(int parentID, Resource fileData, int creatorID)
     {
         FileDTO file = this.createNewFile(parentID, fileData.getFilename(), false, creatorID);
@@ -329,6 +329,7 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'DIR_ADMIN') or (hasAuthority('USER') and hasAuthority('READ'))")
     public FileResourceDownloadWrapper readFile(int fileID, Optional<Short> requestedVersion, int askerID)
     {
         FileEntity fileToRead = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
@@ -366,7 +367,7 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
-    @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")
+    @PreAuthorize("hasAuthority('DIR_ADMIN') or (hasAuthority('USER') and hasAuthority('UPDATE'))")
     public FileDTO updateFile(int fileID, Resource fileData, int askerID)
     {
         // creates a new version
@@ -401,7 +402,7 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
-    @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")
+    @PreAuthorize("hasAuthority('DIR_ADMIN') or (hasAuthority('USER') and hasAuthority('DELETE'))")
     public void deleteFile(int fileID, int askerID)
     {
         FileEntity fileToDelete = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);

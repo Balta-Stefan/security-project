@@ -12,6 +12,28 @@ public class CustomOidcUser extends DefaultOidcUser
 {
     private int userID;
     private Role role;
+    private String accessFromDomain;
+    private String accessFromIp;
+
+    public String getAccessFromDomain()
+    {
+        return accessFromDomain;
+    }
+
+    public void setAccessFromDomain(String accessFromDomain)
+    {
+        this.accessFromDomain = accessFromDomain;
+    }
+
+    public String getAccessFromIp()
+    {
+        return accessFromIp;
+    }
+
+    public void setAccessFromIp(String accessFromIp)
+    {
+        this.accessFromIp = accessFromIp;
+    }
 
     public Role getRole()
     {

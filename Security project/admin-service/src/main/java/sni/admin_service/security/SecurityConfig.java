@@ -33,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
         http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
                 .authorizeRequests()
+                .antMatchers("/forbidden.html").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .oauth2Login(oauth2 ->
@@ -45,7 +46,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
                         oauth2Login
                                 .userInfoEndpoint().oidcUserService(this.customOidcUserService()));*/
     }
-
 
     @Bean
     public CustomAuthSuccessHandler customAuthSuccessHandler()

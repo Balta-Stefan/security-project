@@ -1,5 +1,6 @@
 package sni.common.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
+@Slf4j
 public class CustomLogoutHandler extends SecurityContextLogoutHandler
 {
     private final ClientRegistrationRepository clientRegistrationRepository;
@@ -56,13 +58,7 @@ public class CustomLogoutHandler extends SecurityContextLogoutHandler
         catch (IOException ioe)
         {
             // Handle or log error redirecting to logout URL
-            try
-            {
-                httpServletResponse.sendRedirect("/");
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            log.warn("Exception on user logout: " + ioe.getMessage());
         }
     }
 
