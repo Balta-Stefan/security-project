@@ -1,5 +1,5 @@
 export interface DirectoryBasicDTO{
-    fileID: number;
+    fileId: number;
     parentID: number;
     name: string;
 }

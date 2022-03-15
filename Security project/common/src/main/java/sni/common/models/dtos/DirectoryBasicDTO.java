@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class DirectoryBasicDTO
 {
-    private int fileID;
+    private int fileId;
     private int parentID;
     @NotBlank
     private String name;

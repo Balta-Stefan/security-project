@@ -92,8 +92,13 @@ public class FilesServiceImpl implements FilesService
 
     @Override
     @PreAuthorize("hasAnyAuthority('DIR_ADMIN')")
-    public FileDTO moveFile(int fileID, int newParentID, int askerID)
+    public void moveFile(int fileID, int newParentID, int askerID)
     {
+        if(fileID == newParentID)
+        {
+            throw new ForbiddenException();
+        }
+
         UserEntity user = usersRepository.findById(askerID).orElseThrow(NotFoundException::new);
         FileEntity fileToMove = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
         FileEntity newParent = filesRepository.findById(newParentID).orElseThrow(NotFoundException::new);
@@ -130,13 +135,11 @@ public class FilesServiceImpl implements FilesService
 
         fileToMove.setParent(newParent);
         fileToMove = filesRepository.saveAndFlush(fileToMove);
-
-        return modelMapper.map(fileToMove, FileDTO.class);
     }
 
     @Override
     @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")
-    public FileDTO renameFile(int fileID, int askerID, String newName)
+    public void renameFile(int fileID, int askerID, String newName)
     {
         FileEntity fileToRename = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
         if(fileToRename.getDiscarded() || fileToRename.getDeleted())
@@ -157,20 +160,19 @@ public class FilesServiceImpl implements FilesService
 
         fileToRename.setName(newName);
         fileToRename = filesRepository.saveAndFlush(fileToRename);
-
-        return modelMapper.map(fileToRename, FileDTO.class);
     }
 
     @Override
     public DirectoryDTO listDir(int fileID, int askerID)
     {
         FileEntity fileToRead = filesRepository.findById(fileID).orElseThrow(NotFoundException::new);
-        if(fileToRead.getDiscarded() || fileToRead.getDeleted())
+        UserEntity user = usersRepository.findById(askerID).orElseThrow(NotFoundException::new);
+
+        // only ADMIN can see discarded or deleted files
+        if((fileToRead.getDiscarded() || fileToRead.getDeleted()) && user.getRole().equals(Role.ADMIN) == false)
         {
             throw new NotFoundException();
         }
-
-        UserEntity user = usersRepository.findById(askerID).orElseThrow(NotFoundException::new);
 
         // check whether the user is authorised to perform this operation
         this.checkFileBelongsToUserRoot(user, fileToRead);
@@ -180,12 +182,41 @@ public class FilesServiceImpl implements FilesService
             throw new NotFoundException();
         }
 
-        return modelMapper.map(fileToRead, DirectoryDTO.class);
+        DirectoryDTO directoryDTO = modelMapper.map(fileToRead, DirectoryDTO.class);
+        // EXCLUDE DISCARDED OR DELETED CHILDREN IF USER ISN'T ADMIN!
+        if(user.getRole().equals(Role.ADMIN) == false)
+        {
+            List<FileBasicDTO> children = directoryDTO.getChildren();
+            children = children.stream()
+                    .filter(child -> child.getDiscarded() == false && child.getDeleted() == false)
+                    .toList();
+            directoryDTO.setChildren(children);
+        }
+
+        List<DirectoryBasicDTO> breadCrumbs = new ArrayList<>();
+        FileEntity parent = fileToRead;
+
+        FileEntity userRoot = user.getRootDir();
+        if(fileToRead.getFileId() == userRoot.getFileId())
+        {
+            return directoryDTO;
+        }
+
+        while((parent = parent.getParent()) != null)
+        {
+            breadCrumbs.add(modelMapper.map(parent, DirectoryBasicDTO.class));
+            if(parent.getFileId() == userRoot.getFileId())
+                break;
+        }
+        Collections.reverse(breadCrumbs);
+        directoryDTO.setBreadCrumbs(breadCrumbs);
+
+        return directoryDTO;
     }
 
-    private FileDTO createNewFile(@Valid FileDTO fileDTO, int creatorID)
+    private FileDTO createNewFile(int parentID, String name, boolean isDir, int creatorID)
     {
-        FileEntity newFileParent = filesRepository.findById(fileDTO.getParent()).orElseThrow(NotFoundException::new);
+        FileEntity newFileParent = filesRepository.findById(parentID).orElseThrow(NotFoundException::new);
         if(newFileParent.getDiscarded() || newFileParent.getDeleted())
         {
             throw new NotFoundException();
@@ -196,18 +227,18 @@ public class FilesServiceImpl implements FilesService
         // check whether the user is authorised to perform this operation
         this.checkFileBelongsToUserRoot(user, newFileParent);
 
-        Operation op = (fileDTO.getIsDirectory() == true) ? Operation.CREATE_DIR : Operation.CREATE_FILE;
+        Operation op = (isDir == true) ? Operation.CREATE_DIR : Operation.CREATE_FILE;
 
         FileLogEntity fileLogEntity = this.logUtilMethod(op, newFileParent, user, "");
 
         FileEntity newFile = new FileEntity();
-        newFile.setName(fileDTO.getName());
+        newFile.setName(name);
 
         newFile.setDiscarded(false);
         newFile.setDeleted(false);
         newFile.setNumOfVersions((short) 0);
         newFile.setParent(newFileParent);
-        newFile.setIsDirectory(false);
+        newFile.setIsDirectory(isDir);
 
         newFile = filesRepository.saveAndFlush(newFile);
 
@@ -216,9 +247,9 @@ public class FilesServiceImpl implements FilesService
 
     @Override
     @PreAuthorize("hasAnyAuthority('DIR_ADMIN')")
-    public FileDTO createDir(FileDTO toCreate, int creatorID)
+    public FileDTO createDir(int parentID, String name, int creatorID)
     {
-        return this.createNewFile(toCreate, creatorID);
+        return this.createNewFile(parentID, name, true, creatorID);
     }
 
     @Override
@@ -243,14 +274,10 @@ public class FilesServiceImpl implements FilesService
 
         if(root == null)
         {
-            return new DirectoryDTO(null, Collections.emptyList());
+            return new DirectoryDTO(null, null, Collections.emptyList());
         }
 
-        if(root.getDiscarded() || root.getDeleted())
-        {
-            throw new NotFoundException();
-        }
-        return modelMapper.map(root, DirectoryDTO.class);
+        return this.listDir(root.getFileId(), userID);
     }
 
     /*@Override
@@ -286,9 +313,9 @@ public class FilesServiceImpl implements FilesService
 
     @Override
     @PreAuthorize("hasAnyAuthority('DIR_ADMIN', 'USER')")
-    public FileDTO createFile(@Valid FileDTO toCreate, Resource fileData, int creatorID)
+    public FileBasicDTO createFile(int parentID, Resource fileData, int creatorID)
     {
-        FileDTO file = this.createNewFile(toCreate, creatorID);
+        FileDTO file = this.createNewFile(parentID, fileData.getFilename(), false, creatorID);
         try
         {
             filePersistenceService.persistFile(file.getFileId(), (short) 0, fileData);
@@ -298,7 +325,7 @@ public class FilesServiceImpl implements FilesService
             throw new InternalServerError();
         }
 
-        return file;
+        return modelMapper.map(file, FileBasicDTO.class);
     }
 
     @Override

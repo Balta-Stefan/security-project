@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>Move file</h2>
+<mat-dialog-content class="mat-typography">
+    <form (ngSubmit)="moveFile()">
+        <div class="form-floating mb-3">
+            <input [(ngModel)]="destination" type="number" min="0" class="form-control" id="floatingInput" placeholder="Destination">
+            <label for="floatingInput">Destination directory ID</label>
+        </div>
+        <button [disabled]="!destination" type="submit" class="btn btn-primary">Move</button>
+    </form>
+</mat-dialog-content>

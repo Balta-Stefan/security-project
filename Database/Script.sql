@@ -83,7 +83,7 @@ ENGINE = InnoDB;
 -- Table `document_management_system`.`File_logs`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `document_management_system`.`File_logs` (
-  `log_id` BIGINT NOT NULL,
+  `log_id` BIGINT NOT NULL AUTO_INCREMENT,
   `description` VARCHAR(255) NOT NULL,
   `file_id` INT NOT NULL,
   `user_id` INT NOT NULL,
@@ -116,6 +116,10 @@ END$$
 
 
 DELIMITER ;
+
+-- create root directory
+INSERT INTO `document_management_system`.`files` (`name`, `is_directory`, `discarded`, `deleted`, `num_of_versions`) VALUES ('/', '1', '0', '0', '0');
+
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class DirectoryDTO
 {
+    private List<DirectoryBasicDTO> breadCrumbs;
     private DirectoryBasicDTO directory;
     private List<FileBasicDTO> children;
 }

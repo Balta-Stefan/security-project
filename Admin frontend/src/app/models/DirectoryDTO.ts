@@ -2,6 +2,7 @@ import { DirectoryBasicDTO } from "./DirectoryBasicDTO";
 import { FileBasicDTO } from "./FileBasicDTO";
 
 export interface DirectoryDTO{
-    directory: DirectoryBasicDTO;
+    breadCrumbs: DirectoryBasicDTO[] | null;
+    directory: DirectoryBasicDTO | null;
     children: FileBasicDTO[];
 }

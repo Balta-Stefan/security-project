@@ -21,7 +21,7 @@ export class LogsModalComponent implements OnInit {
         this.logs = value;
       },
       error: (err: HttpErrorResponse) => {
-        alert("Error: " + err.statusText);
+        alert("Error: " + err.status);
       }
     });
   }

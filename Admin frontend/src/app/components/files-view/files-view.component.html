@@ -51,7 +51,7 @@
         <form (ngSubmit)="uploadFile()">
             <div class="mb-3">
                 <label for="formFile" class="form-label">Add new file</label>
-                <input class="form-control" type="file" id="formFile" (change)="newFileChosen($event)">
+                <input class="form-control" #fileUploadInput type="file" id="formFile" (change)="newFileChosen($event)">
             </div>
             <button class="btn btn-secondary" [disabled]="!newFile">Add new file</button>
         </form>
@@ -59,7 +59,7 @@
    
     <mat-accordion class="headers-align" multi>
         <mat-expansion-panel *ngFor="let file of files">
-            <mat-expansion-panel-header>
+            <mat-expansion-panel-header [ngStyle]="{'background-color': (file.discarded || file.deleted) ? 'red' : 'transparent'}">
                 <mat-panel-title>
                     <mat-icon *ngIf="file.isDirectory == true">folder</mat-icon>
                     <mat-icon *ngIf="file.isDirectory == false">insert_drive_file</mat-icon>
@@ -72,10 +72,10 @@
 
             <div class="d-flex justify-content-evenly">
                 <button *ngIf="file.isDirectory" class="btn btn-primary" (click)="openDir(file)">Open</button>
-                <button class="btn btn-secondary">Move</button>
+                <button class="btn btn-secondary" (click)="moveFile(file)">Move</button>
                 <button class="btn btn-danger" (click)="deleteFile(file)">Delete</button>
-                <button class="btn btn-info" (click)="openLogsModal(file)">View logs</button>
-                <a class="btn btn-primary" [href]="'/api/v1/files/file/' + file.fileId">Download</a>    
+                <button *ngIf="role == 'ADMIN'" class="btn btn-info" (click)="openLogsModal(file)">View logs</button>
+                <a *ngIf="file.isDirectory == false" class="btn btn-primary" [href]="'/api/v1/files/file/' + file.fileId">Download</a>    
             </div>
         </mat-expansion-panel>
     </mat-accordion>

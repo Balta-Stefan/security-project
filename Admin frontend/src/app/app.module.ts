@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule} from '@angular/material/card';
 import { LogsModalComponent } from './components/logs-modal/logs-modal.component';
+import { MoveFileModalComponent } from './components/move-file-modal/move-file-modal.component';
 
 export const baseURL:string = "/api/v1";//"http://localhost:8080/api/v1";
 export const jsonHeaders: HttpHeaders = new HttpHeaders({
@@ -30,7 +31,8 @@ export const jsonHeaders: HttpHeaders = new HttpHeaders({
     MainPageComponent,
     FilesViewComponent,
     UsersViewComponent,
-    LogsModalComponent
+    LogsModalComponent,
+    MoveFileModalComponent
   ],
   imports: [
     BrowserModule,

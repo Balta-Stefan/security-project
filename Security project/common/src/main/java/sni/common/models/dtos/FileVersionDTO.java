@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class FileVersionDTO
 {
-    private final int fileID;
-    private final short version;
+    private int fileID;
+    private short version;
 }

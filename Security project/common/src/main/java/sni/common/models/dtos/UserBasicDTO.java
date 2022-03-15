@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class UserBasicDTO
 {
-    private final Integer userId;
-    private final String username;
+    private Integer userId;
+    private String username;
 }

@@ -5,11 +5,10 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sni.common.models.dtos.DirectoryBasicDTO;
-import sni.common.models.dtos.DirectoryDTO;
-import sni.common.models.dtos.FileBasicDTO;
-import sni.common.models.dtos.FileDTO;
+import sni.common.models.dtos.*;
 import sni.common.models.entities.FileEntity;
+import sni.common.models.entities.FileLogEntity;
+import sni.common.models.entities.UserEntity;
 
 import java.util.List;
 
@@ -24,20 +23,41 @@ public class Config
         TypeMap<FileEntity, FileDTO> fileDtoMapper = modelMapper.createTypeMap(FileEntity.class, FileDTO.class);
         fileDtoMapper.addMapping(src -> src.getParent().getFileId(), FileDTO::setParent);
 
-        Converter<FileEntity, DirectoryDTO> fileEntityToDirectoryDto = c -> {
-            DirectoryDTO rootDir = new DirectoryDTO();
-            rootDir.setDirectory(modelMapper.map(c.getSource(), DirectoryBasicDTO.class));
+        // DirectoryBasicDTO converter
+        Converter<FileEntity, DirectoryBasicDTO> fileEntityToDirBasicDTO = c ->
+        {
+            FileEntity src = c.getSource();
+            DirectoryBasicDTO dir = new DirectoryBasicDTO();
 
-            List<FileBasicDTO> children = c.getSource().getChildren()
+            dir.setFileId(src.getFileId());
+            dir.setName(src.getName());
+
+            if(src.getParent() != null)
+                dir.setParentID(src.getParent().getFileId());
+
+            return dir;
+        };
+        TypeMap<FileEntity, DirectoryBasicDTO> fileEntToDirectoryBasicTypeMap = modelMapper.createTypeMap(FileEntity.class, DirectoryBasicDTO.class);
+        fileEntToDirectoryBasicTypeMap.setConverter(fileEntityToDirBasicDTO);
+
+        // DirectoryDTO converter
+        Converter<FileEntity, DirectoryDTO> fileEntityToDirectoryDto = c ->
+        {
+            FileEntity source = c.getSource();
+
+            DirectoryDTO rootDir = new DirectoryDTO();
+            rootDir.setDirectory(modelMapper.map(source, DirectoryBasicDTO.class));
+
+            List<FileBasicDTO> children = source.getChildren()
                     .stream()
                     .map(f -> modelMapper.map(f, FileBasicDTO.class))
                     .toList();
-
             rootDir.setChildren(children);
 
             return rootDir;
         };
-        modelMapper.addConverter(fileEntityToDirectoryDto);
+        TypeMap<FileEntity, DirectoryDTO> fileEntToDirectoryDtoTypeMap = modelMapper.createTypeMap(FileEntity.class, DirectoryDTO.class);
+        fileEntToDirectoryDtoTypeMap.setConverter(fileEntityToDirectoryDto);
 
         return modelMapper;
     }

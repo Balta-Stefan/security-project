@@ -32,6 +32,21 @@ public class FilesController
         return this.filesService.listDir(dirID, principal.getUserID());
     }
 
+    @PostMapping("/dir/{dirID}/mkdir")
+    public FileDTO mkdir(@PathVariable Integer dirID, @RequestParam String name, @AuthenticationPrincipal CustomOidcUser principal)
+    {
+        return this.filesService.createDir(dirID, name, principal.getUserID());
+    }
+
+    @PostMapping("/dir/{dirID}/children")
+    public FileBasicDTO createFile(@PathVariable Integer dirID, MultipartFile file, @AuthenticationPrincipal CustomOidcUser principal)
+    {
+        if(file == null)
+            throw new BadRequestException();
+
+        return this.filesService.createFile(dirID, file.getResource(), principal.getUserID());
+    }
+
     /*@GetMapping("/dir/{dirID}/breadcrumbs")
     public List<DirectoryDTO> getBreadCrumbs(@PathVariable Integer dirID, @AuthenticationPrincipal CustomOidcUser principal)
     {
@@ -50,18 +65,6 @@ public class FilesController
         return this.filesService.getRoot(principal.getUserID());
     }
 
-    @PostMapping("/file")
-    public FileDTO createFile(@RequestBody FileDTO fileDTO, MultipartFile file, @AuthenticationPrincipal CustomOidcUser principal)
-    {
-        if(fileDTO.getIsDirectory() == true)
-            return this.filesService.createDir(fileDTO, principal.getUserID());
-        else if(file == null)
-            throw new BadRequestException();
-
-        return this.filesService.createFile(fileDTO, file.getResource(), principal.getUserID());
-    }
-
-
     @DeleteMapping("/file/{fileID}")
     public void deleteFile(@PathVariable Integer fileID, @AuthenticationPrincipal CustomOidcUser principal)
     {
@@ -76,17 +79,13 @@ public class FilesController
         ContentDisposition contentDisposition = ContentDisposition
                 .attachment()
                 .filename(fileWrapper.getFileName())
-                .build();//builder("inline").filename(fileWrapper.getFileName()).build();
+                .build();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDisposition(contentDisposition);
 
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(fileWrapper.getFile());
-
-        /*return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-                .body(file);*/
     }
 
     @GetMapping("/file/{fileID}/version/{version}")
@@ -97,7 +96,7 @@ public class FilesController
         ContentDisposition contentDisposition = ContentDisposition
                 .attachment()
                 .filename(fileWrapper.getFileName())
-                .build();//builder("inline").filename(fileWrapper.getFileName()).build();
+                .build();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDisposition(contentDisposition);
@@ -105,22 +104,18 @@ public class FilesController
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(fileWrapper.getFile());
-
-        /*return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-                .body(file);*/
     }
 
     @PatchMapping("/file/{fileID}/parent/{newParentID}")
-    public FileDTO changeParent(@PathVariable Integer fileID, @PathVariable Integer newParentID, @AuthenticationPrincipal CustomOidcUser principal)
+    public void changeParent(@PathVariable Integer fileID, @PathVariable Integer newParentID, @AuthenticationPrincipal CustomOidcUser principal)
     {
-        return filesService.moveFile(fileID, newParentID, principal.getUserID());
+        filesService.moveFile(fileID, newParentID, principal.getUserID());
     }
 
     @PatchMapping("/file/{fileID}/name/{newName}")
-    public FileDTO changeName(@PathVariable Integer fileID, @PathVariable String newName, @AuthenticationPrincipal CustomOidcUser principal)
+    public void changeName(@PathVariable Integer fileID, @PathVariable String newName, @AuthenticationPrincipal CustomOidcUser principal)
     {
-        return filesService.renameFile(fileID, principal.getUserID(), newName);
+        filesService.renameFile(fileID, principal.getUserID(), newName);
     }
 
     @PostMapping("/file/{fileID}")

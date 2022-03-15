@@ -65,7 +65,7 @@ export class UsersViewComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.submitUserInfoIsError = true;
-        this.submitUserInfoMessage = err.statusText;
+        this.submitUserInfoMessage = err.status.toString();
       }
     });
   }
@@ -84,7 +84,7 @@ export class UsersViewComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.submitUserInfoIsError = true;
-        this.submitUserInfoMessage = err.statusText;
+        this.submitUserInfoMessage = err.status.toString();
       }
     });
   }
