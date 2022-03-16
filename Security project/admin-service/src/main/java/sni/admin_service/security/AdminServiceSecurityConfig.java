@@ -2,7 +2,6 @@ package sni.admin_service.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,12 +15,12 @@ import sni.common.utils.CustomLogoutHandler;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter
+public class AdminServiceSecurityConfig extends WebSecurityConfigurerAdapter
 {
     private final CustomOidcUserService customOidcUserService;
     private final CustomLogoutHandler customLogoutHandler;
 
-    public SecurityConfig(CustomOidcUserService customOidcUserService, CustomLogoutHandler customLogoutHandler)
+    public AdminServiceSecurityConfig(CustomOidcUserService customOidcUserService, CustomLogoutHandler customLogoutHandler)
     {
         this.customOidcUserService = customOidcUserService;
         this.customLogoutHandler = customLogoutHandler;
@@ -33,8 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
         http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
                 .authorizeRequests()
-                .antMatchers("/forbidden.html").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().hasAuthority("ADMIN")
                 .and()
                 .oauth2Login(oauth2 ->
                         oauth2.userInfoEndpoint()

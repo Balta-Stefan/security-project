@@ -1,0 +1,44 @@
+/*html, body{
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    background-color: rgb(222, 222, 222);
+}*/
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html, body{ 
+    height: 100%; 
+
+}
+body{
+    margin: 0; 
+    font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
+
+
+.error-row{
+    text-align: center;
+}
+
+.headers-align .mat-expansion-panel-header-title,
+.headers-align .mat-expansion-panel-header-description {
+  flex-basis: 0;
+}
+
+.headers-align .mat-expansion-panel-header-description {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headers-align .mat-form-field + .mat-form-field {
+  margin-left: 8px;
+}
+
+@media only screen and (max-width: 760px) {
+  .responsive-material-modal {
+      max-width: none !important;
+      width: 100% !important;
+  }
+}

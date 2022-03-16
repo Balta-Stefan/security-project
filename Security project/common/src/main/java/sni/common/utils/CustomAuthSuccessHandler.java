@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import sni.common.models.CustomOidcUser;
+import sni.common.models.enums.Role;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -27,31 +28,36 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler
         boolean invalidateSession = false;
 
         CustomOidcUser user = (CustomOidcUser)authentication.getPrincipal();
-        if(user.getAccessFromDomain() != null)
-        {
-            if(user.getAccessFromDomain().equals(request.getRemoteHost()) == false)
-                invalidateSession = true;
-        }
-        else if(user.getAccessFromIp() != null)
-        {
-            if(user.getAccessFromIp().equals(request.getRemoteAddr()) == false)
-                invalidateSession = true;
-        }
 
-        if(invalidateSession == true)
+
+        if(user.getRole().equals(Role.USER))
         {
-            request.getSession().invalidate();
-            SecurityContext context = SecurityContextHolder.getContext();
-            SecurityContextHolder.clearContext();
-            context.setAuthentication(null);
+            if (user.getAccessFromDomain() != null)
+            {
+                if (user.getAccessFromDomain().equals(request.getRemoteHost()) == false)
+                    invalidateSession = true;
+            }
+            else if (user.getAccessFromIp() != null)
+            {
+                if (user.getAccessFromIp().equals(request.getRemoteAddr()) == false)
+                    invalidateSession = true;
+            }
 
-            Cookie jsessionIdCookie = new Cookie("JSESSIONID", null);
-            jsessionIdCookie.setPath("/");
-            jsessionIdCookie.setMaxAge(0);
-            response.addCookie(jsessionIdCookie);
+            if (invalidateSession == true)
+            {
+                request.getSession().invalidate();
+                SecurityContext context = SecurityContextHolder.getContext();
+                SecurityContextHolder.clearContext();
+                context.setAuthentication(null);
 
-            response.sendRedirect("/forbidden.html");
-            return;
+                Cookie jsessionIdCookie = new Cookie("JSESSIONID", null);
+                jsessionIdCookie.setPath("/");
+                jsessionIdCookie.setMaxAge(0);
+                response.addCookie(jsessionIdCookie);
+
+                response.sendRedirect("/forbidden.html");
+                return;
+            }
         }
 
         Cookie roleCookie = new Cookie("role", user.getRole().name());

@@ -33,7 +33,9 @@ export class FilesViewComponent implements OnInit {
   constructor(private fileService: FileService, private dialog: MatDialog, private appService: ApplicationService) { }
 
   private modifyBreadcrumbNames(): void{
-    this.workingDir.name = '(' + this.workingDir.fileId + ')' + this.workingDir.name;
+    if(this.workingDir){
+      this.workingDir.name = '(' + this.workingDir.fileId + ')' + this.workingDir.name;
+    }
     
     if(this.breadcrumbs){
       this.breadcrumbs.forEach(b => b.name = '(' + b.fileId + ')' + b.name);

@@ -1,5 +1,6 @@
 package sni.admin_service.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sni.common.models.dtos.UserAdminPanelDTO;
 import sni.common.models.enums.Role;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class UsersController
 {
     private final UserService userService;
