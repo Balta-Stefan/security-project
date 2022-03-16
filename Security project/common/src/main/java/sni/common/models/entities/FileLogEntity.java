@@ -18,7 +18,7 @@ public class FileLogEntity
     private Long logId;
 
     @Basic
-    @Column(name = "description", nullable = false, length = 255)
+    @Column(name = "description", length = 255)
     private String description;
 
     @Basic

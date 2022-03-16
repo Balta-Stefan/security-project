@@ -84,7 +84,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `document_management_system`.`File_logs` (
   `log_id` BIGINT NOT NULL AUTO_INCREMENT,
-  `description` VARCHAR(255) NOT NULL,
+  `description` VARCHAR(255) NULL,
   `file_id` INT NOT NULL,
   `user_id` INT NOT NULL,
   `timestamp` DATETIME NOT NULL,

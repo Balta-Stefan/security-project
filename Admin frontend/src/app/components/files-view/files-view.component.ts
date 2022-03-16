@@ -32,6 +32,14 @@ export class FilesViewComponent implements OnInit {
 
   constructor(private fileService: FileService, private dialog: MatDialog, private appService: ApplicationService) { }
 
+  private modifyBreadcrumbNames(): void{
+    this.workingDir.name = '(' + this.workingDir.fileId + ')' + this.workingDir.name;
+    
+    if(this.breadcrumbs){
+      this.breadcrumbs.forEach(b => b.name = '(' + b.fileId + ')' + b.name);
+    }
+  }
+
   ngOnInit(): void {
     this.role = this.appService.getRole();
 
@@ -39,6 +47,8 @@ export class FilesViewComponent implements OnInit {
       next: (value: DirectoryDTO) => {
         this.workingDir = value.directory!;
         this.files = value.children;
+
+        this.modifyBreadcrumbNames();
       }, 
       error: (err: HttpErrorResponse) => {
         alert(`Could not obtain root directory, status: ${err.status}, message: ${err.status}`);
@@ -69,6 +79,8 @@ export class FilesViewComponent implements OnInit {
         this.workingDir = value.directory!;
         this.breadcrumbs = value.breadCrumbs!;
         this.files = value.children;
+
+        this.modifyBreadcrumbNames();
       },
       error: (err: HttpErrorResponse) => {
         alert("Could not retrieve directory: " + err.status);
@@ -116,6 +128,8 @@ export class FilesViewComponent implements OnInit {
         this.breadcrumbs = values.breadCrumbs!;
         this.workingDir = values.directory!;
         this.files = values.children;
+
+        this.modifyBreadcrumbNames();
       },
       error: (err: HttpErrorResponse) => {
         alert("An error has occurred: " + err.status);

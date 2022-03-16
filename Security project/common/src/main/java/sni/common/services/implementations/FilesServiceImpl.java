@@ -129,7 +129,7 @@ public class FilesServiceImpl implements FilesService
 
 
         String descPart = (fileToMove.getIsDirectory()) ? "directory" : "file";
-        String description = "Moving " + descPart + " to " + newParent.getName();
+        String description = "Moving " + descPart + "(" + fileToMove.getFileId() + ")" + fileToMove.getName() + " to (" + newParent.getFileId() + ")" + newParent.getName();
 
         FileLogEntity fileLogEntity = this.logUtilMethod(Operation.MOVE, fileToMove, user, description);
 
@@ -154,7 +154,7 @@ public class FilesServiceImpl implements FilesService
 
         String descPart = (fileToRename.getIsDirectory()) ? "directory" : "file";
         Operation op = (fileToRename.getIsDirectory()) ? Operation.RENAME_DIR : Operation.RENAME_FILE;
-        String description = "Renaming " + descPart + " to " + newName;
+        String description = "Renaming " + descPart + "(" + fileToRename.getFileId() + ")" + fileToRename.getName() + " to " + newName;
 
         FileLogEntity fileLogEntity = this.logUtilMethod(op, fileToRename, user, description);
 
@@ -214,7 +214,7 @@ public class FilesServiceImpl implements FilesService
         return directoryDTO;
     }
 
-    private FileDTO createNewFile(int parentID, String name, boolean isDir, int creatorID)
+    private FileEntity createNewFile(int parentID, String name, boolean isDir, int creatorID)
     {
         FileEntity newFileParent = filesRepository.findById(parentID).orElseThrow(NotFoundException::new);
         if(newFileParent.getDiscarded() || newFileParent.getDeleted())
@@ -242,14 +242,15 @@ public class FilesServiceImpl implements FilesService
 
         newFile = filesRepository.saveAndFlush(newFile);
 
-        return modelMapper.map(newFile, FileDTO.class);
+        return newFile;
     }
 
     @Override
     @PreAuthorize("hasAnyAuthority('DIR_ADMIN')")
     public FileDTO createDir(int parentID, String name, int creatorID)
     {
-        return this.createNewFile(parentID, name, true, creatorID);
+        FileEntity file = this.createNewFile(parentID, name, true, creatorID);
+        return modelMapper.map(file, FileDTO.class);
     }
 
     @Override
@@ -315,7 +316,10 @@ public class FilesServiceImpl implements FilesService
     @PreAuthorize("hasAuthority('DIR_ADMIN') or (hasAuthority('USER') and hasAuthority('CREATE'))")
     public FileBasicDTO createFile(int parentID, Resource fileData, int creatorID)
     {
-        FileDTO file = this.createNewFile(parentID, fileData.getFilename(), false, creatorID);
+        FileEntity file = this.createNewFile(parentID, fileData.getFilename(), false, creatorID);
+        UserEntity creator = this.usersRepository.findById(creatorID).orElseThrow(NotFoundException::new);
+
+        FileLogEntity fileLogEntity = this.logUtilMethod(Operation.CREATE_FILE, file, creator, null);
         try
         {
             filePersistenceService.persistFile(file.getFileId(), (short) 0, fileData);
@@ -394,7 +398,7 @@ public class FilesServiceImpl implements FilesService
 
         fileVersionEntity = fileVersionsRepository.saveAndFlush(fileVersionEntity);
 
-        FileLogEntity fileLogEntity = this.logUtilMethod(Operation.UPDATE_FILE, fileToUpdate.getParent(), user, "");
+        FileLogEntity fileLogEntity = this.logUtilMethod(Operation.UPDATE_FILE, fileToUpdate, user, null);
 
         entityManager.refresh(fileToUpdate);
 
@@ -416,9 +420,9 @@ public class FilesServiceImpl implements FilesService
         // check whether the user is authorised to perform this operation
         this.checkFileBelongsToUserRoot(user, fileToDelete);
 
-        String description = "Deleting a " + ((fileToDelete.getIsDirectory() == true) ? "directory" : "file");
+        //String description = "Deleting a " + ((fileToDelete.getIsDirectory() == true) ? "directory" : "file");
         Operation op = (fileToDelete.getIsDirectory() == true) ? Operation.DELETE_DIRECTORY : Operation.DELETE_FILE;
-        FileLogEntity fileLogEntity = this.logUtilMethod(op, fileToDelete, user, description);
+        FileLogEntity fileLogEntity = this.logUtilMethod(op, fileToDelete, user, null);
 
 
         fileToDelete.setDiscarded(true);
