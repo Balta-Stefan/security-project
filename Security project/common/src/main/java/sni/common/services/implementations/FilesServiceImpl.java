@@ -1,9 +1,11 @@
 package sni.common.services.implementations;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import sni.common.exceptions.BadRequestException;
 import sni.common.exceptions.ForbiddenException;
 import sni.common.exceptions.InternalServerError;
 import sni.common.exceptions.NotFoundException;
@@ -27,9 +29,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Transactional
+@Slf4j
 public class FilesServiceImpl implements FilesService
 {
     private final FilesRepository filesRepository;
@@ -87,6 +92,18 @@ public class FilesServiceImpl implements FilesService
         if(this.isFileAChild(root, file) == false)
         {
             throw new ForbiddenException();
+        }
+    }
+
+    private void sanitizeString(String str, UserEntity user, Operation operation)
+    {
+        Pattern pattern = Pattern.compile(".*[<>/\\\\;].*");
+        Matcher matcher = pattern.matcher(str);
+
+        if(matcher.matches())
+        {
+            log.warn("User: " + user.getUserId() + " has given a string with forbidden character.Operation: " + operation.name() + ", string is: " + str);
+            throw new BadRequestException();
         }
     }
 
@@ -148,12 +165,14 @@ public class FilesServiceImpl implements FilesService
         }
 
         UserEntity user = usersRepository.findById(askerID).orElseThrow(NotFoundException::new);
+        Operation op = (fileToRename.getIsDirectory()) ? Operation.RENAME_DIR : Operation.RENAME_FILE;
+        this.sanitizeString(newName, user, op);
 
         // check whether the user is authorised to perform this operation
         this.checkFileBelongsToUserRoot(user, fileToRename);
 
         String descPart = (fileToRename.getIsDirectory()) ? "directory" : "file";
-        Operation op = (fileToRename.getIsDirectory()) ? Operation.RENAME_DIR : Operation.RENAME_FILE;
+
         String description = "Renaming " + descPart + "(" + fileToRename.getFileId() + ")" + fileToRename.getName() + " to " + newName;
 
         FileLogEntity fileLogEntity = this.logUtilMethod(op, fileToRename, user, description);
@@ -223,11 +242,11 @@ public class FilesServiceImpl implements FilesService
         }
 
         UserEntity user = usersRepository.findById(creatorID).orElseThrow(NotFoundException::new);
+        Operation op = (isDir == true) ? Operation.CREATE_DIR : Operation.CREATE_FILE;
+        this.sanitizeString(name, user, op);
 
         // check whether the user is authorised to perform this operation
         this.checkFileBelongsToUserRoot(user, newFileParent);
-
-        Operation op = (isDir == true) ? Operation.CREATE_DIR : Operation.CREATE_FILE;
 
         FileLogEntity fileLogEntity = this.logUtilMethod(op, newFileParent, user, "");
 
@@ -319,6 +338,8 @@ public class FilesServiceImpl implements FilesService
         FileEntity file = this.createNewFile(parentID, fileData.getFilename(), false, creatorID);
         UserEntity creator = this.usersRepository.findById(creatorID).orElseThrow(NotFoundException::new);
 
+        this.sanitizeString(fileData.getFilename(), creator, Operation.CREATE_FILE);
+
         FileLogEntity fileLogEntity = this.logUtilMethod(Operation.CREATE_FILE, file, creator, null);
         try
         {
@@ -383,6 +404,7 @@ public class FilesServiceImpl implements FilesService
         }
 
         UserEntity user = usersRepository.findById(askerID).orElseThrow(NotFoundException::new);
+        this.sanitizeString(fileData.getFilename(), user, Operation.UPDATE_FILE);
 
         // check whether the user is authorised to perform this operation
         this.checkFileBelongsToUserRoot(user, fileToUpdate);

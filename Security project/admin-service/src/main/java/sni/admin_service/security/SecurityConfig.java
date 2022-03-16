@@ -41,10 +41,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
                                 .oidcUserService(this.customOidcUserService)
                                 .and()
                                 .successHandler(this.customAuthSuccessHandler()))
-                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).addLogoutHandler(this.customLogoutHandler);
-        /*oauth2Login ->
-                        oauth2Login
-                                .userInfoEndpoint().oidcUserService(this.customOidcUserService()));*/
+                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).addLogoutHandler(this.customLogoutHandler)
+                .and()
+                .headers().contentSecurityPolicy("default-src 'self';" +
+                        "script-src 'self';" +
+                        "style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net 'unsafe-inline';" +
+                        "font-src https://fonts.gstatic.com");
+
+            // angular material doesn't work without inline styles
     }
 
     @Bean
