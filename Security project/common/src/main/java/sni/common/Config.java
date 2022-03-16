@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import sni.common.models.dtos.*;
 import sni.common.models.entities.FileEntity;
-import sni.common.models.entities.FileLogEntity;
-import sni.common.models.entities.UserEntity;
 
 import java.util.List;
 
