@@ -29,12 +29,12 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler
         CustomOidcUser user = (CustomOidcUser)authentication.getPrincipal();
         if(user.getAccessFromDomain() != null)
         {
-            if(user.getAccessFromDomain().equals(request.getRemoteAddr()) == false)
+            if(user.getAccessFromDomain().equals(request.getRemoteHost()) == false)
                 invalidateSession = true;
         }
         else if(user.getAccessFromIp() != null)
         {
-            if(user.getAccessFromIp().equals(request.getRemoteHost()) == false)
+            if(user.getAccessFromIp().equals(request.getRemoteAddr()) == false)
                 invalidateSession = true;
         }
 

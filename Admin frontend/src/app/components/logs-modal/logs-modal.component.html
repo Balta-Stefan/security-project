@@ -12,14 +12,14 @@
               </mat-panel-description>
             </mat-expansion-panel-header>
 
-            <p>Timestamp: {{log.timestamp}}</p>
-            <p>Operation: {{log.operation}}</p>
-            <p>Affected file: {{'ID: ' + log.affectedFile.fileId + ', name: ' + log.affectedFile.name}}</p>
-            <p>Performed by user: {{'ID: ' + log.createdBy.userId + ', username: ' + log.createdBy.username}}</p>
+            <p><b>Timestamp:</b> {{log.timestamp}}</p>
+            <p><b>Operation:</b> {{log.operation}}</p>
+            <p><b>Affected file:</b> {{'ID: ' + log.affectedFile.fileId + ', name: ' + log.affectedFile.name}}</p>
+            <p><b>Performed by user:</b> {{'ID: ' + log.createdBy.userId + ', username: ' + log.createdBy.username}}</p>
         </mat-expansion-panel>
     </mat-accordion>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-button mat-dialog-close>Close</button>
+  <button mat-raised-button mat-dialog-close>Close</button>
 </mat-dialog-actions>

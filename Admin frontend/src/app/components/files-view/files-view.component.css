@@ -9,3 +9,7 @@
     text-decoration: none !important;
     color: gray !important;
 }
+
+.deleted-file{
+    border: 3px solid red;
+}
