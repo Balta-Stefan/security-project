@@ -14,6 +14,17 @@ public class CustomOidcUser extends DefaultOidcUser
     private Role role;
     private String accessFromDomain;
     private String accessFromIp;
+    private boolean active;
+
+    public boolean isActive()
+    {
+        return active;
+    }
+
+    public void setActive(boolean active)
+    {
+        this.active = active;
+    }
 
     public String getAccessFromDomain()
     {

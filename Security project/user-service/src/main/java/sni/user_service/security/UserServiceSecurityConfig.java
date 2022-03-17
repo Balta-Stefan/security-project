@@ -2,6 +2,7 @@ package sni.user_service.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,6 +33,7 @@ public class UserServiceSecurityConfig extends WebSecurityConfigurerAdapter
         http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/forbidden.html").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .oauth2Login(oauth2 ->

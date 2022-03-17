@@ -29,8 +29,11 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler
 
         CustomOidcUser user = (CustomOidcUser)authentication.getPrincipal();
 
-
-        if(user.getRole().equals(Role.USER))
+        if(user.isActive() == false)
+        {
+            invalidateSession = true;
+        }
+        else if(user.getRole().equals(Role.USER))
         {
             if (user.getAccessFromDomain() != null)
             {
@@ -42,22 +45,22 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler
                 if (user.getAccessFromIp().equals(request.getRemoteAddr()) == false)
                     invalidateSession = true;
             }
+        }
 
-            if (invalidateSession == true)
-            {
-                request.getSession().invalidate();
-                SecurityContext context = SecurityContextHolder.getContext();
-                SecurityContextHolder.clearContext();
-                context.setAuthentication(null);
+        if (invalidateSession == true)
+        {
+            request.getSession().invalidate();
+            SecurityContext context = SecurityContextHolder.getContext();
+            SecurityContextHolder.clearContext();
+            context.setAuthentication(null);
 
-                Cookie jsessionIdCookie = new Cookie("JSESSIONID", null);
-                jsessionIdCookie.setPath("/");
-                jsessionIdCookie.setMaxAge(0);
-                response.addCookie(jsessionIdCookie);
+            Cookie jsessionIdCookie = new Cookie("JSESSIONID", null);
+            jsessionIdCookie.setPath("/");
+            jsessionIdCookie.setMaxAge(0);
+            response.addCookie(jsessionIdCookie);
 
-                response.sendRedirect("/forbidden.html");
-                return;
-            }
+            response.sendRedirect("/forbidden.html");
+            return;
         }
 
         Cookie roleCookie = new Cookie("role", user.getRole().name());

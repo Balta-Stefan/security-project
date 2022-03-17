@@ -19,11 +19,11 @@ import sni.common.repositories.LogsRepository;
 import sni.common.repositories.UsersRepository;
 import sni.common.services.FilePersistenceService;
 import sni.common.services.FilesService;
+import sni.common.services.NotificationService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +42,7 @@ public class FilesServiceImpl implements FilesService
     private final LogsRepository logsRepository;
     private final FileVersionsRepository fileVersionsRepository;
     private final FilePersistenceService filePersistenceService;
+    private final NotificationService notificationService;
     private final ModelMapper modelMapper;
 
     @PersistenceContext
@@ -51,13 +52,14 @@ public class FilesServiceImpl implements FilesService
                             UsersRepository usersRepository,
                             LogsRepository logsRepository,
                             FileVersionsRepository fileVersionsRepository, FilePersistenceService filePersistenceService,
-                            ModelMapper modelMapper)
+                            NotificationService notificationService, ModelMapper modelMapper)
     {
         this.filesRepository = filesRepository;
         this.usersRepository = usersRepository;
         this.logsRepository = logsRepository;
         this.fileVersionsRepository = fileVersionsRepository;
         this.filePersistenceService = filePersistenceService;
+        this.notificationService = notificationService;
         this.modelMapper = modelMapper;
     }
 
@@ -265,7 +267,7 @@ public class FilesServiceImpl implements FilesService
     }
 
     @Override
-    @PreAuthorize("hasAnyAuthority('DIR_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'DIR_ADMIN')")
     public FileDTO createDir(int parentID, String name, int creatorID)
     {
         FileEntity file = this.createNewFile(parentID, name, true, creatorID);
@@ -453,6 +455,7 @@ public class FilesServiceImpl implements FilesService
         // if the user is deleting a directory, set all its contents to discarded
         List<FileEntity> currentLevelChildren = fileToDelete.getChildren();
 
+        this.notificationService.notifyOfAction(fileLogEntity);
 
         while(currentLevelChildren.size() != 0)
         {
@@ -463,6 +466,8 @@ public class FilesServiceImpl implements FilesService
                 filesRepository.saveAndFlush(fe);
                 Operation tmpOp = (fe.getIsDirectory() == true) ? Operation.DELETE_DIRECTORY : Operation.DELETE_FILE;
                 FileLogEntity tmpLog = this.logUtilMethod(op, fe, user, "");
+
+                this.notificationService.notifyOfAction(tmpLog);
 
                 temp.addAll(fe.getChildren());
             }

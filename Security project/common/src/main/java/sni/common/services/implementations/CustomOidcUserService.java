@@ -99,6 +99,7 @@ public class CustomOidcUserService extends OidcUserService
         customOidcUser.setRole(userEntity.getRole());
         customOidcUser.setAccessFromDomain(userEntity.getAccessFromDomain());
         customOidcUser.setAccessFromIp(userEntity.getAccessFromIp());
+        customOidcUser.setActive(userEntity.getActive());
 
         return customOidcUser;
     }

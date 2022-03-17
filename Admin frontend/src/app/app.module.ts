@@ -11,7 +11,6 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { UsersViewComponent } from './components/users-view/users-view.component';
-import { NotificationsComponent } from './components/notifications/notifications.component';
 
 export const baseURL:string = "/api/v1";//"http://localhost:8080/api/v1";
 export const jsonHeaders: HttpHeaders = new HttpHeaders({
@@ -23,8 +22,7 @@ export const jsonHeaders: HttpHeaders = new HttpHeaders({
   declarations: [
     AppComponent,
     MainPageComponent,
-    UsersViewComponent,
-    NotificationsComponent
+    UsersViewComponent
   ],
   imports: [
     BrowserModule,
