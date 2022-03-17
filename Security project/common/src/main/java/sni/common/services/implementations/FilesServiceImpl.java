@@ -99,7 +99,7 @@ public class FilesServiceImpl implements FilesService
 
     private void sanitizeString(String str, UserEntity user, Operation operation)
     {
-        Pattern pattern = Pattern.compile(".*[<>/\\\\;].*");
+        Pattern pattern = Pattern.compile(".*[<>/\\\\;\"&'].*");
         Matcher matcher = pattern.matcher(str);
 
         if(matcher.matches())
