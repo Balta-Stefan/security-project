@@ -33,3 +33,4 @@ build/
 .vscode/
 /admin-service/src/main/resources/static/
 /user-service/src/main/resources/static/
+/common/src/main/resources/keystore.p12
