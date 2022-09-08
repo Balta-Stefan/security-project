@@ -3,6 +3,7 @@ package sni.common.controllers;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -66,6 +67,7 @@ public class FilesController
     }
 
     @DeleteMapping("/file/{fileID}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFile(@PathVariable Integer fileID, @AuthenticationPrincipal CustomOidcUser principal)
     {
         this.filesService.deleteFile(fileID, principal.getUserID());
@@ -113,6 +115,7 @@ public class FilesController
     }
 
     @PatchMapping("/file/{fileID}/name/{newName}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changeName(@PathVariable Integer fileID, @PathVariable String newName, @AuthenticationPrincipal CustomOidcUser principal)
     {
         filesService.renameFile(fileID, principal.getUserID(), newName);
