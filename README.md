@@ -1,6 +1,6 @@
 # Description
 
-This project illustrates Spring security (authorization, XSS, CSP...) and Spring OpenID Connect integration with external SSO providers like Auth0.
+This project illustrates Spring security (authentication, authorization, XSS, CSP...) and Spring OpenID Connect integration with external SSO providers like Auth0.
 
 The developed application is a simplified document management system.
 There are 3 types of users:
